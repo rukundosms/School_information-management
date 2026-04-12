@@ -1,0 +1,12 @@
+{
+  "Rukundo": {
+    "name": "Mr. Rukundo",
+    "lessonPlans": "https://drive.google.com/drive/folders/1E9ijJ1QNv7AdmDhzmzpLViOFfnOo4JSC?usp=drive_link",
+    "reports": "https://drive.google.com/drive/folders/JOHN_REPORTS_ID"
+  },
+  "aisha": {
+    "name": "Ms. Aisha",
+    "lessonPlans": "https://drive.google.com/drive/folders/AISHA_LESSON_PLAN_ID",
+    "reports": "https://drive.google.com/drive/folders/AISHA_REPORTS_ID"
+  }
+} 

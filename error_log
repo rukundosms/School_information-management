@@ -1,0 +1,794 @@
+[16-May-2025 20:40:56 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:41:05 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:41:11 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:41:15 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:41:18 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:41:21 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:41:25 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:42:20 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:42:34 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:43:46 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:18 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:22 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:24 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:27 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:28 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:29 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:30 UTC] Missing session variable: name (Module Name)
+[16-May-2025 20:46:31 UTC] Missing session variable: name (Module Name)
+[17-May-2025 13:17:29 UTC] Missing session variable: tid (Teacher ID)
+[10-Jun-2025 14:23:10 UTC] Missing session variable: tid (Teacher ID)
+[16-Jun-2025 11:41:04 UTC] Missing session variable: tid (Teacher ID)
+[23-Jun-2025 14:06:18 UTC] Missing session variable: tid (Teacher ID)
+[23-Jun-2025 15:13:07 UTC] Missing session variable: tid (Teacher ID)
+[24-Jun-2025 12:29:11 UTC] Missing session variable: tid (Teacher ID)
+[25-Jun-2025 21:08:20 UTC] Missing session variable: tid (Teacher ID)
+[27-Jun-2025 09:50:44 UTC] Missing session variable: tid (Teacher ID)
+[27-Jun-2025 10:15:06 UTC] Missing session variable: tid (Teacher ID)
+[27-Jun-2025 13:47:48 UTC] Missing session variable: tid (Teacher ID)
+[27-Jun-2025 16:21:45 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 04:43:47 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 07:42:11 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 10:25:28 UTC] Missing session variable: cl (Class ID)
+[28-Jun-2025 12:04:18 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 12:14:00 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 16:51:31 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 16:52:18 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 19:01:07 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 19:07:49 UTC] Missing session variable: tid (Teacher ID)
+[28-Jun-2025 19:07:56 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 04:16:41 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 04:17:02 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 05:16:50 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 05:31:11 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 05:31:22 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 05:32:50 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 06:50:55 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 06:52:19 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 10:33:33 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 12:27:01 UTC] Student count mismatch: Expected 42, found 41
+[29-Jun-2025 12:55:32 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 13:03:20 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 14:26:12 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 15:22:14 UTC] Missing session variable: tid (Teacher ID)
+[29-Jun-2025 16:02:15 UTC] Missing session variable: tid (Teacher ID)
+[30-Jun-2025 10:53:18 UTC] Missing session variable: tid (Teacher ID)
+[01-Jul-2025 11:19:18 UTC] Missing session variable: tid (Teacher ID)
+[15-Jul-2025 22:34:42 UTC] Missing session variable: tid (Teacher ID)
+[23-Jul-2025 14:45:16 UTC] Missing session variable: tid (Teacher ID)
+[09-Sep-2025 12:05:33 UTC] Missing session variable: tid (Teacher ID)
+[15-Sep-2025 14:53:23 UTC] Missing session variable: tid (Teacher ID)
+[16-Sep-2025 08:44:47 UTC] Missing session variable: tid (Teacher ID)
+[16-Sep-2025 11:52:08 UTC] Missing session variable: tid (Teacher ID)
+[16-Sep-2025 11:52:34 UTC] Missing session variable: tid (Teacher ID)
+[16-Sep-2025 11:52:39 UTC] Missing session variable: tid (Teacher ID)
+[16-Sep-2025 11:52:40 UTC] Missing session variable: tid (Teacher ID)
+[16-Sep-2025 12:36:36 UTC] Missing session variable: tid (Teacher ID)
+[17-Sep-2025 11:05:30 UTC] Missing session variable: tid (Teacher ID)
+[17-Oct-2025 06:26:39 UTC] Missing session variable: tid (Teacher ID)
+[20-Oct-2025 06:17:30 UTC] Missing session variable: tid (Teacher ID)
+[02-Dec-2025 18:50:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[02-Dec-2025 21:04:11 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[03-Dec-2025 09:44:43 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[03-Dec-2025 10:43:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[03-Dec-2025 13:34:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 08:26:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 08:30:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 08:33:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 08:35:04 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 08:37:10 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 08:44:20 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 13:39:08 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 13:50:09 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 13:52:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Dec-2025 14:01:21 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[07-Dec-2025 12:57:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 05:47:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 07:39:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 09:36:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 10:39:23 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 13:22:11 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 13:24:16 UTC] Session class value: 1
+[08-Dec-2025 13:24:16 UTC] Session trade: 0
+[08-Dec-2025 13:26:23 UTC] Session class value: 1
+[08-Dec-2025 13:26:23 UTC] Session trade: 0
+[08-Dec-2025 13:31:07 UTC] Session class value: 1
+[08-Dec-2025 13:31:07 UTC] Session trade: 0
+[08-Dec-2025 13:31:07 UTC] Class found: Level=3, Code=ICTSWD3001, Name=SWD, Program=1, ProgramID=1, TRID=0
+[08-Dec-2025 13:37:55 UTC] Session class value: 1
+[08-Dec-2025 13:37:55 UTC] Session trade: 0
+[08-Dec-2025 13:37:55 UTC] Class found: Level=3, Code=ICTSWD3001, Name=SWD, Program=1, ProgramID=1, TRID=0
+[08-Dec-2025 13:37:55 UTC] Student Insert SQL: INSERT INTO student 
+                                            (firstname, lastname, district, secter, trade, class, reg, status, decission, program_id, registed_year) 
+                                            VALUES 
+                                            ('BUGENIMANA', 'Maurice', 'KICUKIRO', 'NYANZA', '0', '3', 
+                                             'REG20257527', 'active', 'pending', '1', '2')
+[08-Dec-2025 13:37:55 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('769', NULL, '2', 'new', '0', NULL, '3', '1', NOW())
+[08-Dec-2025 13:40:06 UTC] Import Settings - Year: 2025-2026, Class: SWD (3), Program: 1, Trade: 0
+[08-Dec-2025 13:40:38 UTC] Import Settings - Year: 2025-2026, Class: SWD (3), Program: 1, Trade: 0
+[08-Dec-2025 13:47:35 UTC] Import Settings - Year: 2025-2026, Class: SWD (3), Program: 1, Trade: 0
+[08-Dec-2025 13:48:06 UTC] Import Settings - Year: 2025-2026, Class: SWD (3), Program: 1, Trade: 0
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('771', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('772', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('773', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('774', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('775', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('776', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('777', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('778', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('779', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('780', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('781', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('782', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('783', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('784', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('785', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('786', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('787', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('788', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('789', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('790', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('791', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('792', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('793', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('794', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('795', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('796', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('797', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('798', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('799', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('800', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('801', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('802', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('803', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('804', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('805', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('806', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('807', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('808', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('809', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('810', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('811', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('812', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('813', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('814', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('815', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('816', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('817', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('818', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:48:06 UTC] Promotion Log SQL: INSERT INTO student_promotion_log 
+                                                          (sid, from_year, to_year, decision, total_marks, from_class, to_class, program_id, created_at) 
+                                                          VALUES 
+                                                          ('819', '2', '2', 'new', '0', 'NEW', '3', '1', NOW())
+[08-Dec-2025 13:54:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 13:56:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 13:58:26 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:00:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:02:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:04:35 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:06:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:07:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:07:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:07:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 14:34:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:32:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:33:09 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:34:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:36:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:49:50 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:51:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:53:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:55:56 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:57:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 15:59:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 16:02:00 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Dec-2025 16:04:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 07:16:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 09:14:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:06:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:09:03 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:11:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:13:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:15:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:17:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:19:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:21:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:23:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:25:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:27:56 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:29:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:32:00 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:34:02 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:36:04 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:38:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:40:08 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:42:11 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:44:12 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:46:14 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:48:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:50:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:50:46 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:52:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:54:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:56:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 12:58:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:00:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:02:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:04:27 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:04:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:04:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:06:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:06:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:08:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:08:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:10:50 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:11:00 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:12:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:13:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:13:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:15:02 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:15:11 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:17:03 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:18:28 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 13:19:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 15:02:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 15:13:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 16:16:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 18:16:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 19:24:43 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 19:26:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 19:33:03 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 19:39:12 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[09-Dec-2025 19:39:30 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 04:12:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:41:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:46:27 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:48:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:50:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:52:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:54:41 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:55:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:57:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 05:59:46 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:01:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:03:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:05:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:07:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:09:56 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:11:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:14:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:16:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:18:07 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 06:20:09 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 09:04:14 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[10-Dec-2025 15:17:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 05:40:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 05:45:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 07:07:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 07:07:56 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:21:21 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:23:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:25:26 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:27:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:29:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:31:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:33:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:35:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:37:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:39:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:42:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:44:02 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:48:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:50:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:53:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:55:07 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:57:09 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 08:59:11 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:01:12 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:03:13 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:05:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:07:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:09:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:11:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:13:19 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:15:20 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:17:21 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:19:22 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 09:42:54 UTC] Missing session variable: tid (Teacher ID)
+[11-Dec-2025 10:06:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:18:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:38:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:40:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:43:02 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:45:04 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:47:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:49:08 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:51:10 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:53:12 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:55:14 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:57:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 10:59:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:01:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:03:20 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:05:22 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:07:25 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:09:28 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:11:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:13:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:19:08 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:21:11 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:23:13 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:25:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:27:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:29:19 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:31:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:33:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:35:35 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:37:37 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:39:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:41:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:43:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:45:50 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:47:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:49:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:51:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:54:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:56:12 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 11:58:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:00:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:02:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:04:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:06:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:08:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:10:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:12:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:14:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:17:07 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:19:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:21:22 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:24:04 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:32:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:34:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:36:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:38:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:40:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:42:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:44:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:46:41 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:48:42 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:50:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:52:46 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:54:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:56:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 12:58:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:00:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:02:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:05:14 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:07:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:09:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:11:19 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:11:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[11-Dec-2025 13:13:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:41:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:43:41 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:45:43 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:47:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:49:46 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:51:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 11:54:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:02:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:03:27 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:03:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:04:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:06:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:08:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:10:50 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:12:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:14:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:16:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:18:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:20:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:21:25 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:22:10 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:23:03 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:24:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 12:26:30 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 15:16:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[12-Dec-2025 15:18:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[13-Dec-2025 08:23:32 UTC] Missing session variable: tid (Teacher ID)
+[14-Dec-2025 05:48:57 UTC] Missing session variable: tid (Teacher ID)
+[14-Dec-2025 07:09:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:10:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:12:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:14:35 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:16:37 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:18:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:20:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:22:41 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:24:42 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:26:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:28:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:29:28 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:29:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:29:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:31:37 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 09:33:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 12:34:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[14-Dec-2025 12:57:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:31:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:33:30 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:35:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:37:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:39:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:41:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:43:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:45:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:47:41 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:49:42 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:51:44 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:53:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:55:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 08:57:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 13:05:46 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 14:37:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 15:49:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 15:51:50 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 15:53:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 15:56:03 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 15:58:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 16:00:20 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 16:02:22 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 16:04:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 16:06:27 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 18:14:26 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[15-Dec-2025 21:39:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 08:48:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 08:50:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 08:52:35 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 08:54:43 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 08:56:45 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 08:58:46 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:00:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:02:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:05:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:07:07 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:09:19 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:11:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:13:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 09:15:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 10:45:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 11:03:08 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 12:01:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 12:11:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 12:14:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 12:15:23 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 14:23:30 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:27:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:29:21 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:31:38 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:33:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:35:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:37:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:38:27 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:40:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:42:41 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 15:55:56 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 16:23:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Dec-2025 20:18:59 UTC] Missing session variable: tid (Teacher ID)
+[17-Dec-2025 07:49:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 08:45:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 10:39:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 11:28:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 13:51:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 14:05:20 UTC] Missing session variable: cl (Class ID)
+[17-Dec-2025 14:34:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 15:15:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[17-Dec-2025 17:30:41 UTC] Missing session variable: tid (Teacher ID)
+[18-Dec-2025 07:05:09 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:46:48 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:48:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:50:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:52:54 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:54:55 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:56:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 08:58:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:01:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:03:12 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:05:14 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:07:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:09:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:11:19 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:13:21 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:15:24 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:17:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:19:26 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:21:26 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:23:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:25:30 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:27:31 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:29:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:31:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:33:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:35:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:37:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:39:39 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:41:40 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:43:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:45:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:47:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:50:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:52:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:54:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:56:19 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 09:58:21 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:00:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:02:34 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:04:36 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:06:47 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:08:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:11:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:13:03 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:15:15 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:17:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:19:18 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:21:20 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:23:33 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:25:42 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:26:01 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[18-Dec-2025 10:26:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:33:14 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:41:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:41:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:41:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:41:52 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:41:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:41:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 11:42:42 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Dec-2025 14:54:23 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[20-Dec-2025 06:49:49 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[20-Dec-2025 17:38:58 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Dec-2025 16:24:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Dec-2025 17:04:53 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Dec-2025 17:06:20 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Dec-2025 17:12:29 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Dec-2025 17:30:23 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Dec-2025 18:44:59 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[23-Dec-2025 03:58:05 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[31-Dec-2025 19:12:56 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[05-Jan-2026 03:39:22 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[05-Jan-2026 12:47:57 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[06-Jan-2026 06:32:35 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Jan-2026 12:04:51 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[08-Jan-2026 12:11:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[16-Jan-2026 04:22:00 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Jan-2026 11:45:04 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[19-Jan-2026 12:51:17 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Jan-2026 08:09:16 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[22-Jan-2026 08:10:06 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[01-Feb-2026 17:12:28 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[01-Feb-2026 17:16:32 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[02-Feb-2026 08:41:10 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[02-Feb-2026 10:27:02 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[02-Feb-2026 11:20:22 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[02-Feb-2026 11:35:00 UTC] Dashboard error: Table 'futureking_fu.permission' doesn't exist
+[02-Feb-2026 11:41:14 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 11:54:11 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:19:05 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:19:39 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:35:43 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:35:46 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:35:48 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:38:58 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:39:04 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:39:07 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:39:14 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:39:16 UTC] Dashboard error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'specific
+        FROM module m
+        WHERE EXISTS (
+            SELECT 1...' at line 5
+[02-Feb-2026 12:52:06 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 12:53:21 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:03:36 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:16:51 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:19:21 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:43:52 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:43:52 UTC] School info error: MySQL server has gone away
+[02-Feb-2026 13:45:52 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:45:52 UTC] School info error: MySQL server has gone away
+[02-Feb-2026 13:47:07 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:47:07 UTC] School info error: MySQL server has gone away
+[02-Feb-2026 13:59:37 UTC] Dashboard error: MySQL server has gone away
+[02-Feb-2026 13:59:37 UTC] School info error: MySQL server has gone away
+[27-Mar-2026 10:56:12 UTC] Missing session variable: tid (Teacher ID)
+[27-Mar-2026 10:56:44 UTC] Missing session variable: cl (Class ID)
+[27-Mar-2026 12:08:32 UTC] Missing session variable: tid (Teacher ID)
+[30-Mar-2026 11:42:46 UTC] Missing session variable: tid (Teacher ID)
+[30-Mar-2026 13:29:43 UTC] Missing session variable: tid (Teacher ID)
+[05-Apr-2026 19:10:47 UTC] === DATE/TIME DEBUG ===
+[05-Apr-2026 19:10:47 UTC] Current: 2026-04-05 19:10:47 = 1775416247
+[05-Apr-2026 19:10:47 UTC] Start: 2026-04-05 21:00:00 = 1775422800
+[05-Apr-2026 19:10:47 UTC] End: 2026-04-06 22:00:00 = 1775512800
+[05-Apr-2026 19:12:44 UTC] === DATE/TIME DEBUG ===
+[05-Apr-2026 19:12:44 UTC] Current: 2026-04-05 19:12:44 = 1775416364
+[05-Apr-2026 19:12:44 UTC] Start: 2026-04-05 09:00:00 = 1775379600
+[05-Apr-2026 19:12:44 UTC] End: 2026-04-06 10:00:00 = 1775469600
