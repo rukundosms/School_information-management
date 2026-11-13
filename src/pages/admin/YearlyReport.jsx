@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isAdmin, apiFetch } from '../../api/client';
-import schoolLogo from '../../../dist/assets/log.png';
-import rtbLogo from '../../../dist/assets/rtb.png';
-import qrCode from '../../../dist/assets/qlcode.jpg';
+// Images stored inside the public folder
+const schoolLogo = '/log.png';
+const rtbLogo = '/rtb.png';
+const qrCode = '/qlcode.jpg';
 
 const YearlyReport = () => {
   const [reportData, setReportData] = useState(null);
