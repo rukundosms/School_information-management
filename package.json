@@ -6,7 +6,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
-      "build": "node ./node_modules/vite/bin/vite.js build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -26,7 +26,7 @@
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.1",
     "react-i18next": "^18.0.1",
-    "react-router-dom": "^6.26.2",
+    "react-router-dom": "^7.18.5",
     "socket.io-client": "^4.8.4",
     "xlsx": "^0.18.5"
   },
