@@ -1,1 +1,13 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies
 node_modules/
+
+# Database backups
+*.sql
+
+# SSL certificates
+*.pem
