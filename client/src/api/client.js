@@ -1,7 +1,12 @@
 // src/api/client.js
 
 const AUTH_KEY = 'school_portal_auth';
-const API_BASE = '';
+const API_BASE = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? 'http://localhost:4000'
+    : 'https://school-information-management-kqee.onrender.com')
+).replace(/\/+$/, '');
 
 // ============================================================================
 // AUTH STORAGE (unchanged)
