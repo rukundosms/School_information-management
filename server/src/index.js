@@ -139,13 +139,18 @@ app.get('/api/__health', healthHandler);
 // API ROUTES
 // ============================================================
 app.use('/api/public', publicRoutes);
+
+// Student authentication FIRST
+// Supports registration lookup and first-name confirmation
+app.use('/api/auth/student', require('./routes/studentAuth'));
+
+// General authentication AFTER student authentication
 app.use('/api/auth', authRoutes);
+
 app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/dod', dodRoutes);
 app.use('/api/teacher', teacherRoutes);
-// Public student auth (no requireAuth — this is the login flow itself)
-app.use('/api/auth/student', require('./routes/studentAuth'));
 
 // ============================================================
 // 404
