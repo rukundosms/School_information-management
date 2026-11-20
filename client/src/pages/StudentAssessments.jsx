@@ -16,7 +16,8 @@ function getNormalizedType(rawType) {
   if (s.includes('true') || s === 'tf' || s === 'truefalse') return 'true_false';
   if (s.includes('match')) return 'matching';
   if (s.includes('fill') || s === 'fillblank' || s === 'gapfill') return 'fill_blank';
-  if (s.includes('essay') || s.includes('long')) return 'essay';
+  if (s.includes('essay')) return 'essay';
+  if (s.includes('long')) return 'long_answer';
   if (s.includes('short')) return 'short_answer';
   return 'short_answer';
 }
@@ -26,11 +27,25 @@ function getNormalizedType(rawType) {
 // ==========================================
 function InlineFillBlank({ text, value, onChange, disabled }) {
   if (!text) return null;
+
+  // Split on 2+ underscores (supports ___ or _____ or ________)
   const parts = text.split(/(_{2,})/g);
-  let currentVal = value || '';
-  let answersArr = currentVal.length
+  const hasBlanks = parts.length > 1;
+
+  const currentVal = value || '';
+  const answersArr = currentVal.length
     ? (currentVal.includes('||') ? currentVal.split('||') : currentVal.split(','))
     : [];
+
+  // If no blank markers found, render the text plainly (fallback to short-answer style)
+  if (!hasBlanks) {
+    return (
+      <div className="text-gray-800 mb-4 whitespace-pre-wrap text-lg leading-relaxed">
+        {text}
+      </div>
+    );
+  }
+
   let blankIndex = 0;
 
   return (
@@ -48,11 +63,14 @@ function InlineFillBlank({ text, value, onChange, disabled }) {
                 const next = [...answersArr];
                 while (next.length <= idx) next.push('');
                 next[idx] = e.target.value;
-                onChange(next.join('||'));
+                // Trim trailing empty answers to avoid "||" noise
+                const trimmed = next.join('||').replace(/(\|\|)+$/, '');
+                onChange(trimmed);
               }}
               className="inline-block mx-2 border-b-2 border-gray-400 bg-transparent focus:outline-none focus:border-blue-600 px-2 py-1 text-center font-semibold text-blue-700 min-w-[80px]"
               placeholder="…"
               autoComplete="off"
+              aria-label={`Blank ${idx + 1}`}
             />
           );
         }
@@ -278,7 +296,7 @@ export default function StudentAssessments() {
 
     let tokenToUse = approvedToken;
 
-    // FIX: If approved but we don't have the token locally (e.g. page refreshed),
+    // If approved but we don't have the token locally (e.g. page refreshed),
     // silently ping the backend to get the active token before starting.
     if (!tokenToUse) {
       try {
@@ -684,13 +702,24 @@ export default function StudentAssessments() {
                   )}
 
                   {qType === 'fill_blank' && (
-                    <InlineFillBlank text={currentQ.question_text} value={answers[currentQ.question_id] || ''} onChange={(val) => handleAnswerChange(currentQ.question_id, val)} disabled={submitting} />
+                    <InlineFillBlank
+                      text={currentQ.question_text}
+                      value={answers[currentQ.question_id] || ''}
+                      onChange={(val) => handleAnswerChange(currentQ.question_id, val)}
+                      disabled={submitting}
+                    />
                   )}
 
-                  {(qType === 'short_answer' || qType === 'essay') && (
+                  {(qType === 'short_answer' || qType === 'long_answer' || qType === 'essay') && (
                     <>
                       <p className="text-gray-800 mb-4 whitespace-pre-wrap">{currentQ.question_text}</p>
-                      <textarea rows={qType === 'essay' ? "6" : "3"} className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-school focus:outline-none" placeholder={t('assessments:type_answer_here')} value={answers[currentQ.question_id] || ''} onChange={(e) => handleAnswerChange(currentQ.question_id, e.target.value)} />
+                      <textarea
+                        rows={qType === 'short_answer' ? 3 : 6}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-school focus:outline-none"
+                        placeholder={t('assessments:type_answer_here')}
+                        value={answers[currentQ.question_id] || ''}
+                        onChange={(e) => handleAnswerChange(currentQ.question_id, e.target.value)}
+                      />
                     </>
                   )}
 
@@ -795,8 +824,8 @@ export default function StudentAssessments() {
               const isSubmitted = !!a.submitted;
               const isGraded = a.submission_status === 'graded';
               const isRequesting = requestingAssessment === a.assessment_id;
-              
-              // FIX: Also check database approval status for the green button
+
+              // Also check database approval status for the green button
               const isDbApproved = a.approval_status === 'approved';
               const isApproved = (isRequesting && requestStatus === 'approved') || isDbApproved;
 
@@ -817,10 +846,9 @@ export default function StudentAssessments() {
                     {isSubmitted ? (
                       <span className="text-sm text-gray-400">{t('assessments:already_submitted')}</span>
                     ) : isApproved ? (
-                      // FIX: The Start Button
-                      <button 
-                        onClick={() => startAssessment(a)} 
-                        disabled={startingRef.current} 
+                      <button
+                        onClick={() => startAssessment(a)}
+                        disabled={startingRef.current}
                         className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg animate-pulse"
                       >
                         <i className="fas fa-play"></i> Start Assessment
