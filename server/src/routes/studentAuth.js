@@ -77,7 +77,7 @@ const LOOKUP_SQL = `
        FROM student_promotion_log spl
       WHERE spl.sid = s.sid
         AND spl.to_year = ?
-      ORDER BY spl.created_at DESC
+      ORDER BY spl.log_id DESC
       LIMIT 1),
     CASE WHEN s.registed_year = ? THEN s.class ELSE NULL END
   )
