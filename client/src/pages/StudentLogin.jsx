@@ -8,11 +8,9 @@ export default function StudentLogin() {
   const [years, setYears] = useState([]);
   const [yearId, setYearId] = useState('');
 
-  // Reg lookup result
   const [reg, setReg] = useState('');
-  const [lookupResult, setLookupResult] = useState(null); // { login_ticket, student: {...}, class: {...} }
+  const [lookupResult, setLookupResult] = useState(null); // { login_ticket, student, class }
 
-  // First-name step
   const [firstName, setFirstName] = useState('');
 
   const [error, setError] = useState('');
@@ -28,7 +26,7 @@ export default function StudentLogin() {
       .catch(() => {});
   }, []);
 
-  // Reset downstream state whenever the year changes
+  // Reset downstream state when year changes
   useEffect(() => {
     setReg('');
     setLookupResult(null);
@@ -52,12 +50,10 @@ export default function StudentLogin() {
         method: 'POST',
         body: JSON.stringify({
           year_id: Number(yearId),
-          reg: reg.trim(),
+          reg: reg.trim(),       // send as string — column is VARCHAR(32)
         }),
       });
 
-      // Expected shape:
-      // { login_ticket, student: { sid, reg, firstname_masked }, class: { cid, level, class_name } }
       if (!data?.login_ticket || !data?.student || !data?.class) {
         throw new Error('Unexpected server response.');
       }
@@ -79,8 +75,6 @@ export default function StudentLogin() {
     if (!firstName.trim()) return setError('Please enter your first name.');
 
     setLoading(true);
-
-    // Clear any previously stored auth before attempting login
     clearStoredAuth();
 
     try {
@@ -100,7 +94,6 @@ export default function StudentLogin() {
         throw new Error(`Login returned role "${data.user.role}", expected "student".`);
       }
 
-      // Verify the JWT payload matches expectations
       try {
         const payload = JSON.parse(atob(data.token.split('.')[1]));
         if (payload.role !== 'student') throw new Error(`Token role mismatch: ${payload.role}`);
@@ -134,7 +127,7 @@ export default function StudentLogin() {
         <h2 style={{ marginTop: 0 }}>Student login</h2>
         {error ? <div className="alert-error">{error}</div> : null}
 
-        {/* ---------- STEP 1: year + reg ---------- */}
+        {/* ---------- STEP 1 ---------- */}
         {!lookupResult && (
           <form onSubmit={onLookup}>
             <div className="form-group">
@@ -164,6 +157,7 @@ export default function StudentLogin() {
                 required
                 autoComplete="off"
                 spellCheck={false}
+                maxLength={32}
                 disabled={!yearId || lookingUp}
               />
               <small style={{ color: '#666' }}>
@@ -177,7 +171,7 @@ export default function StudentLogin() {
           </form>
         )}
 
-        {/* ---------- STEP 2: confirm first name ---------- */}
+        {/* ---------- STEP 2 ---------- */}
         {lookupResult && (
           <form onSubmit={onConfirm}>
             <div
