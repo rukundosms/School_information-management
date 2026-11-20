@@ -300,46 +300,45 @@ export default function AdminStudentRoster() {
   };
 
   // Handle file upload
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+ const handleFileUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const fileType = file.name.split('.').pop().toLowerCase();
-    if (fileType !== 'csv' && fileType !== 'xlsx' && fileType !== 'xls') {
-      setError('Please upload CSV or Excel file only');
-      return;
+  const fileType = file.name.split('.').pop().toLowerCase();
+
+  if (!['csv', 'xlsx', 'xls'].includes(fileType)) {
+    setError('Please upload CSV or Excel file only');
+    return;
+  }
+
+  setUploading(true);
+  setError('');
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('classId', cid);
+  formData.append('yearId', yearId);
+  formData.append('programId', programId);
+
+  try {
+    const result = await apiFetch('/api/admin/students/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (result.success) {
+      setSuccess(`${result.added} students added successfully!`);
+      await loadData();
+      e.target.value = '';
+    } else {
+      setError(result.message || 'Upload failed');
     }
-
-    setUploading(true);
-    setError('');
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('classId', cid);
-    formData.append('yearId', yearId);
-    formData.append('programId', programId);
-
-    try {
-      const response = await fetch('http://localhost:4000/api/admin/students/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        setSuccess(`${result.added} students added successfully!`);
-        await loadData();
-        e.target.value = '';
-      } else {
-        setError(result.message || 'Upload failed');
-      }
-    } catch (err) {
-      setError('Failed to upload file: ' + err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
+  } catch (err) {
+    setError('Failed to upload file: ' + err.message);
+  } finally {
+    setUploading(false);
+  }
+};
 
   // Download template CSV
   const downloadTemplate = () => {
