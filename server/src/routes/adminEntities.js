@@ -782,7 +782,12 @@ router.post('/students', async (req, res) => {
     );
 
     const newStudentId = result.insertId;
-    await pool.query(`INSERT INTO student_promotion_log (sid, from_year, to_year, from_class, to_class, decision, program_id) VALUES (?, ?, ?, ?, ?, 'Promoted', ?)`, [newStudentId, yearId, yearId, classId, classId, programId || 0]);
+    await pool.query(
+  `INSERT INTO student_promotion_log
+   (sid, total_marks, from_year, to_year, from_class, to_class, decision, program_id)
+   VALUES (?, 0, ?, ?, ?, ?, 'Promoted', ?)`,
+  [result.insertId, yearId, yearId, classId, classId, programId || 0]
+);
     res.json({ ok: true, sid: newStudentId, message: 'Student added successfully' });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -838,11 +843,17 @@ router.post('/students/upload', upload.single('file'), async (req, res) => {
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Active', '', '0')`,
           [String(firstname).trim(), String(lastname).trim(), reg || null, district || null, secter || null, classId, programId || 0, yearId]
         );
-        await pool.query(`INSERT INTO student_promotion_log (sid, from_year, to_year, from_class, to_class, decision, program_id) VALUES (?, ?, ?, ?, ?, 'Promoted', ?)`, [result.insertId, yearId, yearId, classId, classId, programId || 0]);
+await pool.query(
+  `INSERT INTO student_promotion_log
+   (sid, total_marks, from_year, to_year, from_class, to_class, decision, program_id)
+   VALUES (?, 0, ?, ?, ?, ?, 'Promoted', ?)`,
+  [result.insertId, yearId, yearId, classId, classId, programId || 0]
+);
         added++;
       } catch (e) {
-        errors++;
-      }
+  errors++;
+  console.error('Student upload error:', e.message);
+}
     }
 
     fs.unlinkSync(file.path);
