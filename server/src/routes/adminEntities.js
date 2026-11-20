@@ -657,29 +657,39 @@ router.post('/process-promotion', async (req, res) => {
 
 // ============ STUDENT MANAGEMENT ENDPOINTS ============
 
+// GET /api/admin/students-in-class?cid=123
 router.get('/students-in-class', async (req, res) => {
   const cid = parseInt(req.query.cid, 10);
   if (!cid) return res.status(400).json({ error: 'cid required' });
 
   try {
-    const [[active]] = await pool.query("SELECT year_id FROM year WHERE status = 'active' ORDER BY year_id DESC LIMIT 1");
+    // Resolve the active year
+    const [[active]] = await pool.query(
+      "SELECT year_id FROM year WHERE status = 'active' ORDER BY year_id DESC LIMIT 1"
+    );
     const yearId = active?.year_id;
+    if (!yearId) return res.status(400).json({ error: 'No active year found' });
 
-    if (!yearId) {
-      return res.status(400).json({ error: 'No active year found' });
-    }
-
-    const [classInfo] = await pool.query('SELECT class_program FROM class WHERE cid = ?', [cid]);
-    const classProgram = classInfo[0]?.class_program || 0;
-
+    // Pull students from TWO sources, union'd:
+    //   (A) students whose student.class points at this class in the active year
+    //   (B) students promoted into this class in the active year
+    // This makes freshly-added students (which only set student.class) show up
+    // immediately, while keeping promoted students working as before.
     const [students] = await pool.query(
-      `SELECT DISTINCT s.sid, s.firstname, s.lastname, s.district, s.secter, s.status, 
-              s.decission as decision, s.reg, s.class, s.program_id
+      `SELECT DISTINCT
+         s.sid, s.firstname, s.lastname, s.district, s.secter,
+         s.status, s.decission AS decision, s.reg, s.class,
+         s.program_id
        FROM student s
-       INNER JOIN student_promotion_log spl ON s.sid = spl.sid
-       WHERE spl.to_class = ? AND spl.to_year = ? AND spl.program_id = ?
-       ORDER BY s.firstname`,
-      [cid, yearId, classProgram]
+       LEFT JOIN student_promotion_log spl
+         ON spl.sid = s.sid
+        AND spl.to_year = ?
+        AND spl.to_class = ?
+       WHERE
+         (s.class = ? AND s.registed_year = ?)
+         OR spl.log_id IS NOT NULL
+       ORDER BY s.firstname, s.lastname`,
+      [yearId, cid, cid, yearId]
     );
 
     res.json({ students, yearId });
@@ -688,7 +698,6 @@ router.get('/students-in-class', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-
 router.put('/students/:sid/status', async (req, res) => {
   const sid = parseInt(req.params.sid, 10);
   const { status } = req.body;
