@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../../api/client';
 
 // Use the correct API URL based on your backend setup
-const API_BASE_URL = 'http://localhost:4000/api/admin';
+const API_BASE_URL = `${API_BASE}/api/admin`;
 
 const AdminAssessment = () => {
     const [assessments, setAssessments] = useState([]);
@@ -39,7 +40,7 @@ const AdminAssessment = () => {
     // Test backend connection
     const testBackendConnection = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/api/health', {
+            const response = await axios.get(`${API_BASE}/api/health`, {
                 timeout: 5000
             });
             console.log('Backend connection successful:', response.data);
