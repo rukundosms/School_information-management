@@ -144,6 +144,8 @@ app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/dod', dodRoutes);
 app.use('/api/teacher', teacherRoutes);
+// Public student auth (no requireAuth — this is the login flow itself)
+app.use('/api/auth/student', require('./routes/studentAuth'));
 
 // ============================================================
 // 404
