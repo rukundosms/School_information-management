@@ -1,7 +1,7 @@
 // src/pages/teacher/TeacherDownloadResponses.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { apiFetch } from '../../api/client';
+import { apiFetch, API_BASE } from '../../api/client';
 
 export default function TeacherDownloadResponses() {
   const [assessments, setAssessments] = useState([]);
@@ -22,72 +22,115 @@ export default function TeacherDownloadResponses() {
     })();
   }, []);
 
-  // ✅ FIXED: Fetch HTML using token, convert to Blob, open in new tab
+  const getAuthToken = () => {
+    try {
+      return JSON.parse(localStorage.getItem('school_portal_auth') || '{}')?.token;
+    } catch {
+      return null;
+    }
+  };
+
+  // Extract filename from Content-Disposition header, fallback to default
+  const getFilename = (res, fallback) => {
+    const cd = res.headers.get('Content-Disposition') || '';
+    const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i.exec(cd);
+    return match ? decodeURIComponent(match[1]) : fallback;
+  };
+
+  // ✅ Fetch HTML using token + correct API base, convert to Blob, open in new tab
   const openPaper = async (assessmentId, studentId = null) => {
     setDownloading(`paper-${assessmentId}-${studentId || 'all'}`);
     setError('');
-    
+
     try {
-      const token = JSON.parse(localStorage.getItem('school_portal_auth') || '{}')?.token;
-      const qs = studentId ? `?student_id=${studentId}` : '';
-      
-      const res = await fetch(`/api/teacher/download-answers/${assessmentId}/paper${qs}`, {
+      const token = getAuthToken();
+      if (!token) throw new Error('Session expired. Please log in again.');
+
+      const qs = studentId ? `?student_id=${encodeURIComponent(studentId)}` : '';
+      const url = `${API_BASE}/api/teacher/download-answers/${assessmentId}/paper${qs}`;
+
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Failed to load paper');
+        let message = 'Failed to load paper';
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const errBody = await res.json().catch(() => ({}));
+          message = errBody.error || message;
+        } else {
+          const text = await res.text().catch(() => '');
+          // Avoid dumping full HTML error pages; keep it short
+          if (text && text.length < 200) message = text;
+        }
+        throw new Error(`${message} (HTTP ${res.status})`);
       }
 
       const html = await res.text();
       const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      
-      const newWindow = window.open(url, '_blank');
+      const blobUrl = URL.createObjectURL(blob);
+
+      const newWindow = window.open(blobUrl, '_blank');
       if (!newWindow) {
-        alert('Please allow pop-ups to view the paper.');
+        // Pop-up blocked — fall back to download
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = getFilename(res, `assessment_${assessmentId}_paper.html`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
-      
-      // Clean up the Blob URL after 60 seconds
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to load paper');
     } finally {
       setDownloading(null);
     }
   };
 
-  // ✅ FIXED: Fetch Excel using token, trigger download
+  // ✅ Fetch Excel using token + correct API base, trigger download
   const downloadExcel = async (assessmentId) => {
     setDownloading(`excel-${assessmentId}`);
     setError('');
-    
+
     try {
-      const token = JSON.parse(localStorage.getItem('school_portal_auth') || '{}')?.token;
-      
-      const res = await fetch(`/api/teacher/download-answers/${assessmentId}/excel`, {
+      const token = getAuthToken();
+      if (!token) throw new Error('Session expired. Please log in again.');
+
+      const url = `${API_BASE}/api/teacher/download-answers/${assessmentId}/excel`;
+
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Failed to download Excel');
+        let message = 'Failed to download Excel';
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const errBody = await res.json().catch(() => ({}));
+          message = errBody.error || message;
+        } else {
+          const text = await res.text().catch(() => '');
+          if (text && text.length < 200) message = text;
+        }
+        throw new Error(`${message} (HTTP ${res.status})`);
       }
 
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      
+      const blobUrl = URL.createObjectURL(blob);
+
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `assessment_${assessmentId}_answers.xls`;
+      a.href = blobUrl;
+      a.download = getFilename(res, `assessment_${assessmentId}_answers.xls`);
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to download Excel');
     } finally {
       setDownloading(null);
     }
