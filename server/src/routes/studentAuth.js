@@ -72,15 +72,33 @@ const LOOKUP_SQL = `
     c.class_name,
     c.level
   FROM student s
-  INNER JOIN class c ON c.cid = COALESCE(
-    (SELECT spl.to_class
-       FROM student_promotion_log spl
-      WHERE spl.sid = s.sid
-        AND spl.to_year = ?
-      ORDER BY spl.log_id DESC
-      LIMIT 1),
-    CASE WHEN s.registed_year = ? THEN s.class ELSE NULL END
-  )
+
+  LEFT JOIN (
+    SELECT
+      spl.sid,
+      spl.to_class
+    FROM student_promotion_log spl
+    INNER JOIN (
+      SELECT
+        sid,
+        MAX(log_id) AS latest_log_id
+      FROM student_promotion_log
+      WHERE to_year = ?
+      GROUP BY sid
+    ) latest
+      ON latest.latest_log_id = spl.log_id
+  ) latest_promotion
+    ON latest_promotion.sid = s.sid
+
+  INNER JOIN class c
+    ON c.cid = COALESCE(
+      latest_promotion.to_class,
+      CASE
+        WHEN s.registed_year = ? THEN s.class
+        ELSE NULL
+      END
+    )
+
   WHERE s.reg = ?
   LIMIT 1
 `;
