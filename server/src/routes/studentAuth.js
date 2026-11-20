@@ -63,6 +63,7 @@ const loginLimiter = rateLimit({
 //   2. student.class if student.registed_year = <year_id>
 // `reg` is now VARCHAR(32), so direct equality is safe.
 // ============================================================
+
 const LOOKUP_SQL = `
   SELECT
     s.sid,
@@ -71,13 +72,13 @@ const LOOKUP_SQL = `
     c.cid,
     c.class_name,
     c.level
-  FROM student s
+  FROM student AS s
 
   LEFT JOIN (
     SELECT
       spl.sid,
       spl.to_class
-    FROM student_promotion_log spl
+    FROM student_promotion_log AS spl
     INNER JOIN (
       SELECT
         sid,
@@ -85,12 +86,12 @@ const LOOKUP_SQL = `
       FROM student_promotion_log
       WHERE to_year = ?
       GROUP BY sid
-    ) latest
-      ON latest.latest_log_id = spl.log_id
-  ) latest_promotion
+    ) AS latest
+      ON spl.log_id = latest.latest_log_id
+  ) AS latest_promotion
     ON latest_promotion.sid = s.sid
 
-  INNER JOIN class c
+  INNER JOIN class AS c
     ON c.cid = COALESCE(
       latest_promotion.to_class,
       CASE
@@ -102,7 +103,6 @@ const LOOKUP_SQL = `
   WHERE s.reg = ?
   LIMIT 1
 `;
-
 // ============================================================
 // STEP 1: LOOKUP BY REG NUMBER
 // POST /api/auth/student/lookup  { year_id, reg }
