@@ -890,6 +890,11 @@ router.delete('/assessments/:id', async (req, res) => {
 // One HTTP request + one database transaction
 // ============================================================
 
+// ============================================================
+// BULK IMPORT ASSESSMENT QUESTIONS
+// One HTTP request + one database transaction
+// ============================================================
+
 router.post('/assessments/:id/questions/bulk', async (req, res) => {
   const assessmentId = parseInt(req.params.id, 10);
 
@@ -911,6 +916,10 @@ router.post('/assessments/:id/questions/bulk', async (req, res) => {
 
   const questions = parsed.data.questions;
 
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return res.status(400).json({ error: 'No questions supplied' });
+  }
+
   const tid = await resolveTeacherId(req);
 
   if (!tid) {
@@ -918,6 +927,18 @@ router.post('/assessments/:id/questions/bulk', async (req, res) => {
   }
 
   let connection;
+
+  // Hard safety timeout so the client never spins forever.
+  const timeoutId = setTimeout(() => {
+    if (connection) {
+      connection.rollback().catch(() => {});
+    }
+    if (!res.headersSent) {
+      res.status(504).json({
+        error: 'Bulk import timed out. Check question data and try again.'
+      });
+    }
+  }, 25000);
 
   try {
     connection = await pool.getConnection();
@@ -934,36 +955,54 @@ router.post('/assessments/:id/questions/bulk', async (req, res) => {
 
     if (assessments.length === 0) {
       await connection.rollback();
+      clearTimeout(timeoutId);
 
       return res.status(404).json({
         error: 'Assessment not found'
       });
     }
 
-    // Prepare all questions for one INSERT statement
-    const values = questions.map((q, index) => [
-      assessmentId,
-      q.question_type,
-      q.question_text.trim(),
+    // Prepare all questions for one INSERT statement.
+    // Every value is coerced and validated here so the multi-row
+    // INSERT cannot silently fail on an undefined/NaN cell.
+    const values = questions.map((q, index) => {
+      const marks = Number(q.marks);
+      const ppa = Number(q.points_per_answer);
 
-      q.option_a?.trim() || null,
-      q.option_b?.trim() || null,
-      q.option_c?.trim() || null,
-      q.option_d?.trim() || null,
-      q.option_e?.trim() || null,
+      if (!Number.isFinite(marks) || marks <= 0) {
+        throw new Error(`Question ${index + 1}: marks must be a positive number`);
+      }
+      if (!Number.isFinite(ppa) || ppa <= 0) {
+        throw new Error(`Question ${index + 1}: points_per_answer must be a positive number`);
+      }
+      if (!q.question_type || !q.question_text || !q.question_text.trim()) {
+        throw new Error(`Question ${index + 1}: question_type and question_text are required`);
+      }
 
-      q.correct_answer?.trim() || null,
-      q.marks,
+      return [
+        assessmentId,
+        q.question_type,
+        q.question_text.trim(),
 
-      q.required ? 1 : 0,
-      q.points_per_answer,
+        q.option_a?.trim() || null,
+        q.option_b?.trim() || null,
+        q.option_c?.trim() || null,
+        q.option_d?.trim() || null,
+        q.option_e?.trim() || null,
 
-      q.image_url?.trim() || null,
-      q.validation_rules?.trim() || null,
+        q.correct_answer?.trim() || null,
+        marks,
 
-      q.display_order || index + 1,
-      q.matching_pairs || null
-    ]);
+        q.required ? 1 : 0,
+        ppa,
+
+        q.image_url?.trim() || null,
+        q.validation_rules?.trim() || null,
+
+        Number(q.display_order) || index + 1,
+        q.matching_pairs?.trim() || null
+      ];
+    });
 
     const sql = `
       INSERT INTO assessment_questions (
@@ -987,9 +1026,11 @@ router.post('/assessments/:id/questions/bulk', async (req, res) => {
       VALUES ?
     `;
 
+    // mysql2 only supports "VALUES ?" via connection.query (not execute).
     await connection.query(sql, [values]);
 
     await connection.commit();
+    clearTimeout(timeoutId);
 
     return res.status(201).json({
       ok: true,
@@ -998,6 +1039,8 @@ router.post('/assessments/:id/questions/bulk', async (req, res) => {
     });
 
   } catch (error) {
+
+    clearTimeout(timeoutId);
 
     if (connection) {
       try {
@@ -1009,12 +1052,19 @@ router.post('/assessments/:id/questions/bulk', async (req, res) => {
 
     console.error('Bulk assessment import error:', error);
 
-    return res.status(500).json({
-      error: 'Failed to import assessment questions.',
-      details: error.message
-    });
+    if (!res.headersSent) {
+      // Validation errors thrown above are client errors (400).
+      const isValidation =
+        /^Question \d+:/.test(error.message || '');
+
+      return res.status(isValidation ? 400 : 500).json({
+        error: isValidation ? error.message : 'Failed to import assessment questions.',
+        details: error.message
+      });
+    }
 
   } finally {
+    clearTimeout(timeoutId);
     if (connection) {
       connection.release();
     }

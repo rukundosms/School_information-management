@@ -563,13 +563,13 @@ const REPAIR_CATEGORIES = [
     { key: 'audio-codec', img: '/assets/Audio Codec IC.jpg', badges: ['phone', 'laptop'] },
   ]},
   { id: 'data-components', icon: 'fa-database', iconColor: 'text-blue-500', components: [
-    { key: 'bus', img: '/assets/Bus Transceivers_Multiplexers.jpg', badges: ['phone', 'laptop'] },
+    { key: 'bus', img: '/assets/Bus_Transceivers_%20Multiplexers.jpg', badges: ['phone', 'laptop'] },
     { key: 'resistor-networks', img: '/assets/Resistor Networks.jpg', badges: ['phone', 'laptop'] },
     { key: 'tpm', img: '/assets/TPM (Trusted Platform Module).jpg', badges: ['phone', 'laptop'] },
   ]},
   { id: 'power-time', icon: 'fa-clock', iconColor: 'text-amber-600', components: [
     { key: 'cmos', img: '/assets/CMOS RAM Chip.jpg', badges: ['phone', 'laptop'] },
-    { key: 'gold-pins', img: '/assets/Gold Pins Pads.jpg', badges: ['phone', 'laptop'] },
+    { key: 'gold-pins', img: '/assets/Gold_Pins%20_Pads.jpg', badges: ['phone', 'laptop'] },
   ]},
   { id: 'advanced', icon: 'fa-shield-alt', iconColor: 'text-red-500', components: [
     { key: 'optocouplers', img: '/assets/diode.jpg', badges: ['phone', 'laptop'] },

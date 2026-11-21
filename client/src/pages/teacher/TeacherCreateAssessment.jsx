@@ -7,120 +7,192 @@ import { apiFetch } from '../../api/client';
 // UNIVERSAL QUESTION PARSER
 // Handles: MCQs (A-E), True/False, Fill in the blanks, Essays.
 // ============================================================
+
 function parseUniversalQuestions(text) {
   if (!text) return [];
 
-  let clean = text
+  const clean = text
     .replace(/^=+\s*Page\s+\d+\s*=+$/gim, '')
     .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
     .replace(/\t/g, ' ')
     .trim();
 
-  const questionStartRe = /^(?:Question\s+|Q\s*)?(\d+)\s*[\.\)](?:\s*(?:\d+|[a-z])\s*[\.\)])?\s+/gim;
-  const matches = [...clean.matchAll(questionStartRe)];
-  if (matches.length === 0) return [];
+  if (!clean) return [];
+
+  // Recognize question headings.
+  // Numbered answer points are not treated as questions
+  // because question numbering must be sequential.
+  const questionStartRe =
+    /^\s*(?:(?:Question|Q)\s*)?(\d+)\s*[.)]\s*(.*)$/i;
 
   const blocks = [];
-  for (let i = 0; i < matches.length; i++) {
-    const start = matches[i].index;
-    const end = i + 1 < matches.length ? matches[i + 1].index : clean.length;
-    blocks.push(clean.slice(start, end).trim());
+  let currentBlock = null;
+
+  // FIX: no longer requires strictly sequential numbering.
+  // Any "N." / "N)" / "QN." heading starts a new block, as long as the
+  // number is greater than the last accepted one (prevents answer-point
+  // numbering like "1. ..." inside an essay from spawning new questions).
+  let lastAcceptedNumber = 0;
+
+  for (const line of clean.split('\n')) {
+    const match = line.match(questionStartRe);
+
+    if (match) {
+      const n = Number(match[1]);
+      if (n > lastAcceptedNumber) {
+        currentBlock = {
+          number: n,
+          lines: [match[2]]
+        };
+        blocks.push(currentBlock);
+        lastAcceptedNumber = n;
+        continue;
+      }
+    }
+
+    if (currentBlock) {
+      currentBlock.lines.push(line);
+    }
   }
 
   const questions = [];
 
   for (const block of blocks) {
-    const body = block.replace(questionStartRe, '').trim();
-    if (!body) continue;
+    const lines = block.lines;
 
-    const marksMatch = body.match(/\((\d+)\s*marks?\)/i);
-    const marks = marksMatch ? Math.max(1, parseInt(marksMatch[1], 10)) : 1;
-    const withoutMarks = body.replace(/\(\d+\s*marks?\)/i, '').trim();
+    // Locate Answer: without losing multiline model answers.
+    const answerIndex = lines.findIndex(line =>
+      /^\s*Answer\s*:/i.test(line)
+    );
 
-    // Preserve formatting but flatten lines for easier parsing
-    const flat = withoutMarks.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+    const questionLines = answerIndex >= 0
+      ? lines.slice(0, answerIndex)
+      : lines;
+
+    const answerLines = answerIndex >= 0
+      ? [
+          lines[answerIndex].replace(/^\s*Answer\s*:\s*/i, ''),
+          ...lines.slice(answerIndex + 1)
+        ]
+      : [];
+
+    // Extract marks from the question portion first.
+    const questionSource = questionLines.join('\n');
+
+    const marksMatch = questionSource.match(
+      /\(?\s*(\d+(?:\.\d+)?)\s*marks?\s*\)?/i
+    );
+
+    const marks = marksMatch
+      ? Math.max(1, Number(marksMatch[1]))
+      : 1;
+
+    // Remove marks only; preserve underscores and question wording.
+    const removeMarks = value =>
+      value.replace(
+        /\(?\s*\d+(?:\.\d+)?\s*marks?\s*\)?/gi,
+        ''
+      );
+
+    const options = {
+      A: '',
+      B: '',
+      C: '',
+      D: '',
+      E: ''
+    };
+
+    const questionTextLines = [];
+    let currentOption = null;
+    let optionsStarted = false;
+
+    // Extract MCQ options while preserving the question text.
+    for (const originalLine of questionLines) {
+      const line = removeMarks(originalLine).trim();
+
+      if (!line) continue;
+
+      const optionMatch = line.match(/^([A-E])[.)]\s*(.*)$/i);
+
+      if (optionMatch) {
+        optionsStarted = true;
+        currentOption = optionMatch[1].toUpperCase();
+        options[currentOption] = optionMatch[2].trim();
+        continue;
+      }
+
+      if (optionsStarted && currentOption) {
+        options[currentOption] +=
+          (options[currentOption] ? ' ' : '') + line;
+      } else {
+        questionTextLines.push(line);
+      }
+    }
+
+    const questionText = removeMarks(
+      questionTextLines.join('\n')
+    ).trim();
+
+    // Keep the complete answer, including numbered essay points.
+    const fullAnswer = answerLines.join('\n').trim();
 
     let type = 'short_answer';
-    let questionText = '';
-    let correctAnswer = '';
-    let option_a = '', option_b = '', option_c = '', option_d = '', option_e = '';
+    let correctAnswer = fullAnswer;
 
-    const hasOptions = /A[\.\)]\s/.test(flat) && /B[\.\)]\s/.test(flat);
-    const hasAnswerLine = /Answer\s*:\s*/i.test(flat);
+    const hasOptions = Boolean(options.A && options.B);
 
     if (hasOptions) {
       type = 'multiple_choice';
-      
-      // Extract options A to E
-      const optA = flat.match(/A[\.\)]\s*(.*?)(?=\s*B[\.\)])/);
-      const optB = flat.match(/B[\.\)]\s*(.*?)(?=\s*C[\.\)])/);
-      const optC = flat.match(/C[\.\)]\s*(.*?)(?=\s*D[\.\)])/);
-      const optD = flat.match(/D[\.\)]\s*(.*?)(?=\s*E[\.\)]|\s*Answer:)/);
-      const optE = flat.match(/E[\.\)]\s*(.*?)(?=\s*Answer:)/);
 
-      if (optA) option_a = optA[1].trim();
-      if (optB) option_b = optB[1].trim();
-      if (optC) option_c = optC[1].trim();
-      if (optD) option_d = optD[1].trim();
-      if (optE) option_e = optE[1].trim();
+      // Support answers written as A, A., or the full option text.
+      const answerLetter = fullAnswer.match(/^([A-E])(?:[.)\s]|$)/i);
 
-      const qTextMatch = flat.match(/(.*?)\s*A[\.\)]\s/);
-      questionText = qTextMatch ? qTextMatch[1].replace(/\d+\s*marks?\.?/i, '').trim() : flat.split(/A[\.\)]\s/)[0].trim();
-
-      // Find answer
-      const ansMatch = flat.match(/Answer\s*:\s*([A-E])(?:\.|\s|$)/i);
-      if (ansMatch) {
-        correctAnswer = ansMatch[1].toUpperCase();
+      if (answerLetter) {
+        correctAnswer = answerLetter[1].toUpperCase();
       } else {
-        const textMatch = flat.match(/Answer\s*:\s*(.*?)(?:\d+\.|$)/i);
-        if (textMatch) {
-          const val = textMatch[1].trim().toLowerCase();
-          if (val === option_a.toLowerCase()) correctAnswer = 'A';
-          else if (val === option_b.toLowerCase()) correctAnswer = 'B';
-          else if (val === option_c.toLowerCase()) correctAnswer = 'C';
-          else if (val === option_d.toLowerCase()) correctAnswer = 'D';
-          else if (val === option_e.toLowerCase()) correctAnswer = 'E';
-          else correctAnswer = 'A';
-        }
+        const answerValue = fullAnswer
+          .trim()
+          .toLowerCase();
+
+        const matchedOption = Object.entries(options).find(
+          ([letter, value]) =>
+            value && value.trim().toLowerCase() === answerValue
+        );
+
+        correctAnswer = matchedOption
+          ? matchedOption[0]
+          : fullAnswer;
       }
 
-    } else if (/Answer\s*:\s*(TRUE|FALSE)/i.test(flat)) {
+    } else if (/^(TRUE|FALSE)\b/i.test(fullAnswer)) {
       type = 'true_false';
-      const ansMatch = flat.match(/Answer\s*:\s*(TRUE|FALSE)/i);
-      if (ansMatch) correctAnswer = ansMatch[1].toUpperCase();
-      const qTextMatch = flat.match(/(.*?)\s*Answer:/i);
-      if (qTextMatch) questionText = qTextMatch[1].replace(/\d+\s*marks?\.?/i, '').trim();
 
-    } else if (flat.includes('____')) {
-      // FIX: Automatically mark as fill_blank if underscores exist
+      // Keep the answer compatible with True/False automatic grading.
+      correctAnswer = fullAnswer.match(/^(TRUE|FALSE)/i)[1].toUpperCase();
+
+    } else if (/_{3,}/.test(questionText)) {
       type = 'fill_blank';
-      const ansMatch = flat.match(/Answer\s*:\s*(.*?)(?:\d+\.|$)/i);
-      if (ansMatch) correctAnswer = ansMatch[1].trim();
-      const qTextMatch = flat.match(/(.*?)\s*Answer:/i);
-      if (qTextMatch) questionText = qTextMatch[1].replace(/\d+\s*marks?\.?/i, '').trim();
-      else questionText = flat.replace(/\d+\s*marks?\.?/i, '').trim();
 
-    } else {
+    } else if (fullAnswer) {
       type = 'essay';
-      if (hasAnswerLine) {
-        const ansMatch = flat.match(/Answer\s*:\s*(.*?)(?:\d+\.|$)/i);
-        if (ansMatch) correctAnswer = ansMatch[1].trim();
-        const qTextMatch = flat.match(/(.*?)\s*Answer:/i);
-        if (qTextMatch) questionText = qTextMatch[1].replace(/\d+\s*marks?\.?/i, '').trim();
-      } else {
-        questionText = flat.replace(/\d+\s*marks?\.?/i, '').trim();
-      }
     }
 
-    if (questionText.trim()) {
-      questions.push({
-        question_type: type,
-        question_text: questionText.trim(),
-        option_a, option_b, option_c, option_d, option_e,
-        correct_answer: correctAnswer,
-        marks,
-      });
+    if (!questionText || questionText.length < 3) {
+      continue;
     }
+
+    questions.push({
+      question_type: type,
+      question_text: questionText,
+      option_a: options.A,
+      option_b: options.B,
+      option_c: options.C,
+      option_d: options.D,
+      option_e: options.E,
+      correct_answer: correctAnswer,
+      marks
+    });
   }
 
   return questions;
@@ -159,6 +231,7 @@ export default function TeacherCreateAssessment() {
   const [previewQuestions, setPreviewQuestions] = useState(null);
   const [previewSource, setPreviewSource] = useState('');
   const fileInputRef = useRef(null);
+  const importLockRef = useRef(false);
 
   useEffect(() => {
     if (isEditMode) return;
@@ -320,13 +393,21 @@ export default function TeacherCreateAssessment() {
       setQuestions(updated.questions || []);
     } catch (err) { setError(err.message); } finally { setUploading(false); }
   };
-
-
 const confirmPreviewImport = async () => {
+  // Prevent double-submit (button click + re-render, or double click)
+  if (importLockRef.current) return;
+
   if (!previewQuestions || previewQuestions.length === 0) {
     return;
   }
 
+  // Guard against a missing assessment id (create-mode race)
+  if (!assessmentId) {
+    setError('Assessment ID missing — save assessment details first.');
+    return;
+  }
+
+  importLockRef.current = true;
   setUploading(true);
   setError('');
   setSuccess('');
@@ -338,49 +419,71 @@ const confirmPreviewImport = async () => {
       {
         method: 'POST',
         body: JSON.stringify({
-          questions: previewQuestions.map((q, index) => ({
-            question_type: q.question_type,
-            question_text: q.question_text,
+          questions: previewQuestions.map((q, index) => {
+            const marks = Number(q.marks);
+            const ppa = Number(q.points_per_answer);
 
-            option_a: q.option_a || '',
-            option_b: q.option_b || '',
-            option_c: q.option_c || '',
-            option_d: q.option_d || '',
-            option_e: q.option_e || '',
+            return {
+              question_type: q.question_type,
+              question_text: (q.question_text || '').trim(),
 
-            correct_answer: q.correct_answer || '',
-            marks: Number(q.marks) || 1,
+              option_a: (q.option_a || '').trim(),
+              option_b: (q.option_b || '').trim(),
+              option_c: (q.option_c || '').trim(),
+              option_d: (q.option_d || '').trim(),
+              option_e: (q.option_e || '').trim(),
 
-            required: q.required !== false,
-            points_per_answer: Number(q.points_per_answer) || 1,
+              correct_answer: (q.correct_answer || '').trim(),
+              marks: Number.isFinite(marks) && marks > 0 ? marks : 1,
 
-            image_url: q.image_url || '',
-            validation_rules: q.validation_rules || '',
+              required: q.required !== false,
+              points_per_answer: Number.isFinite(ppa) && ppa > 0 ? ppa : 1,
 
-            display_order: q.display_order || index + 1,
-            matching_pairs: q.matching_pairs || ''
-          }))
+              image_url: q.image_url || '',
+              validation_rules: q.validation_rules || '',
+
+              display_order: Number(q.display_order) || index + 1,
+              matching_pairs: q.matching_pairs || ''
+            };
+          })
         })
       }
     );
 
-    // Reload questions from the database
-    const updated = await apiFetch(
-      `/api/teacher/assessments/${assessmentId}/questions`
-    );
-    setQuestions(updated.questions || []);
+    // Reload questions from the database. If the reload fails,
+    // fall back to the payload so the UI is never stuck.
+    let reloaded = [];
+    try {
+      const updated = await apiFetch(
+        `/api/teacher/assessments/${assessmentId}/questions`
+      );
+      reloaded = updated.questions || [];
+    } catch (reloadErr) {
+      console.warn('Reload after import failed:', reloadErr);
+      reloaded = [];
+    }
+    if (reloaded.length > 0) {
+      setQuestions(reloaded);
+    } else {
+      setQuestions(prev => [
+        ...prev,
+        ...previewQuestions.map((q, i) => ({
+          ...q,
+          question_id: `tmp-${Date.now()}-${i}`
+        }))
+      ]);
+    }
     setSuccess(
-      `Successfully imported ${data.count} questions!`
+      `Successfully imported ${data.count ?? previewQuestions.length} questions!`
     );
     setPreviewQuestions(null);
     setPreviewSource('');
   } catch (err) {
     console.error('Assessment import error:', err);
-    setError(
-      err.message || 'Failed to import assessment questions.'
-    );
+    setError(err.message || 'Failed to import assessment questions.');
   } finally {
     setUploading(false);
+    importLockRef.current = false;
   }
 };
   const handleDeleteQuestion = async (qid) => {
