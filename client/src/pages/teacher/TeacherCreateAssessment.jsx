@@ -321,31 +321,68 @@ export default function TeacherCreateAssessment() {
     } catch (err) { setError(err.message); } finally { setUploading(false); }
   };
 
-  const confirmPreviewImport = async () => {
-    if (!previewQuestions || previewQuestions.length === 0) return;
-    setUploading(true); setError(''); setSuccess('');
-    const created = [];
-    try {
-      for (const q of previewQuestions) {
-        const data = await apiFetch(`/api/teacher/assessments/${assessmentId}/questions`, {
-          method: 'POST',
-          body: JSON.stringify({
-            question_type: q.question_type, question_text: q.question_text, 
-            option_a: q.option_a, option_b: q.option_b, option_c: q.option_c, option_d: q.option_d, option_e: q.option_e, 
-            correct_answer: q.correct_answer, marks: q.marks,
-          }),
-        });
-        created.push({ ...q, question_id: data.question_id });
-      }
-      setQuestions((prev) => [...prev, ...created]);
-      setSuccess(`🎉 Imported ${created.length} question(s) successfully!`);
-      setPreviewQuestions(null); setPreviewSource('');
-    } catch (err) {
-      setError(`Import failed after ${created.length} question(s): ${err.message}`);
-      if (created.length > 0) setQuestions((prev) => [...prev, ...created]);
-    } finally { setUploading(false); }
-  };
 
+const confirmPreviewImport = async () => {
+  if (!previewQuestions || previewQuestions.length === 0) {
+    return;
+  }
+
+  setUploading(true);
+  setError('');
+  setSuccess('');
+
+  try {
+    // Send all questions in ONE request
+    const data = await apiFetch(
+      `/api/teacher/assessments/${assessmentId}/questions/bulk`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          questions: previewQuestions.map((q, index) => ({
+            question_type: q.question_type,
+            question_text: q.question_text,
+
+            option_a: q.option_a || '',
+            option_b: q.option_b || '',
+            option_c: q.option_c || '',
+            option_d: q.option_d || '',
+            option_e: q.option_e || '',
+
+            correct_answer: q.correct_answer || '',
+            marks: Number(q.marks) || 1,
+
+            required: q.required !== false,
+            points_per_answer: Number(q.points_per_answer) || 1,
+
+            image_url: q.image_url || '',
+            validation_rules: q.validation_rules || '',
+
+            display_order: q.display_order || index + 1,
+            matching_pairs: q.matching_pairs || ''
+          }))
+        })
+      }
+    );
+
+    // Reload questions from the database
+    const updated = await apiFetch(
+      `/api/teacher/assessments/${assessmentId}/questions`
+    );
+    setQuestions(updated.questions || []);
+    setSuccess(
+      `Successfully imported ${data.count} questions!`
+    );
+    setPreviewQuestions(null);
+    setPreviewSource('');
+  } catch (err) {
+    console.error('Assessment import error:', err);
+    setError(
+      err.message || 'Failed to import assessment questions.'
+    );
+  } finally {
+    setUploading(false);
+  }
+};
   const handleDeleteQuestion = async (qid) => {
     if (!confirm('Delete this question?')) return;
     try {

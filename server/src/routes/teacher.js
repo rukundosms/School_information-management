@@ -884,6 +884,143 @@ router.delete('/assessments/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+
+// ============================================================
+// BULK IMPORT ASSESSMENT QUESTIONS
+// One HTTP request + one database transaction
+// ============================================================
+
+router.post('/assessments/:id/questions/bulk', async (req, res) => {
+  const assessmentId = parseInt(req.params.id, 10);
+
+  if (!Number.isInteger(assessmentId) || assessmentId <= 0) {
+    return res.status(400).json({ error: 'Invalid assessment ID' });
+  }
+
+  // Validate all questions before writing anything
+  const { bulkQuestionSchema } = require('../schemas/assessment');
+
+  const parsed = bulkQuestionSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: parsed.error.issues[0].message,
+      details: parsed.error.issues
+    });
+  }
+
+  const questions = parsed.data.questions;
+
+  const tid = await resolveTeacherId(req);
+
+  if (!tid) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+
+    await connection.beginTransaction();
+
+    // Confirm that this assessment belongs to the logged-in teacher
+    const [assessments] = await connection.query(
+      `SELECT assessment_id
+       FROM assessments
+       WHERE assessment_id = ? AND tid = ?`,
+      [assessmentId, tid]
+    );
+
+    if (assessments.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        error: 'Assessment not found'
+      });
+    }
+
+    // Prepare all questions for one INSERT statement
+    const values = questions.map((q, index) => [
+      assessmentId,
+      q.question_type,
+      q.question_text.trim(),
+
+      q.option_a?.trim() || null,
+      q.option_b?.trim() || null,
+      q.option_c?.trim() || null,
+      q.option_d?.trim() || null,
+      q.option_e?.trim() || null,
+
+      q.correct_answer?.trim() || null,
+      q.marks,
+
+      q.required ? 1 : 0,
+      q.points_per_answer,
+
+      q.image_url?.trim() || null,
+      q.validation_rules?.trim() || null,
+
+      q.display_order || index + 1,
+      q.matching_pairs || null
+    ]);
+
+    const sql = `
+      INSERT INTO assessment_questions (
+        assessment_id,
+        question_type,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        option_e,
+        correct_answer,
+        marks,
+        required,
+        points_per_answer,
+        image_url,
+        validation_rules,
+        display_order,
+        matching_pairs
+      )
+      VALUES ?
+    `;
+
+    await connection.query(sql, [values]);
+
+    await connection.commit();
+
+    return res.status(201).json({
+      ok: true,
+      count: questions.length,
+      message: `Successfully imported ${questions.length} questions.`
+    });
+
+  } catch (error) {
+
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error('Assessment import rollback error:', rollbackError);
+      }
+    }
+
+    console.error('Bulk assessment import error:', error);
+
+    return res.status(500).json({
+      error: 'Failed to import assessment questions.',
+      details: error.message
+    });
+
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+});
+
 // ============================================================================
 // QUESTIONS
 // ============================================================================
