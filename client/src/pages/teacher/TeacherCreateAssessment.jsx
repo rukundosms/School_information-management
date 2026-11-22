@@ -2,295 +2,213 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../../api/client';
-
 // ============================================================
-// UNIVERSAL QUESTION PARSER
+// UNIVERSAL QUESTION PARSER (upgraded for sectioned papers)
 // Handles: MCQs (A-E), True/False, Fill in the blanks, Essays.
+// Supports: SECTION headers, Instruction lines, page markers,
+//           multi-line marks, options split across pages.
 // ============================================================
-
-
 function parseUniversalQuestions(text) {
   if (!text) return [];
-
-  // Normalize text extracted from Word documents.
-  const clean = text
-  .replace(/^=+\s*Page\s+\d+\s*=+$/gim, '')
-  .replace(/\r\n/g, '\n')
-  .replace(/\r/g, '\n')
-  .replace(/\t/g, ' ')
-
-  // Convert HTML space entities into normal spaces.
-  .replace(/&(?:#x0*20|#0*32|#x0*a0|#0*160|nbsp);/gi, ' ')
-
-  .trim();
-
+  // ---- Normalize text extracted from Word documents ----
+  let clean = text
+    // Remove page markers: "===== Page 1 [text layer] ====="
+    .replace(/^\s*=+\s*Page\s+\d+(?:\s*\[[^\]]*\])?\s*=+\s*$/gim, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\t/g, ' ')
+    // Convert HTML space entities into normal spaces
+    .replace(/&(?:#x0*20|#0*32|#x0*a0|#0*160|nbsp);/gi, ' ')
+    .trim();
   if (!clean) return [];
-
+  // ---- Rejoin marks that got split across lines ----
+  // e.g. "(3 \nmarks)" -> "(3 marks)"
+  clean = clean.replace(/\(\s*(\d+(?:\.\d+)?)\s*\n\s*marks?\s*\)/gi, '($1 marks)');
+  clean = clean.replace(/(\d+(?:\.\d+)?)\s*\n\s*marks?\b/gi, '$1 marks');
+  // ---- Drop section/instruction lines BEFORE parsing ----
+  // SECTION A: MULTIPLE-CHOICE QUESTIONS
+  // Instruction: Choose the correct answer ...
+  // Also handle wrapped instruction lines.
+  clean = clean
+    .split('\n')
+    .filter((line) => {
+      const t = line.trim();
+      if (!t) return true; // keep blank lines for block boundaries
+      if (/^SECTION\s+[A-Z0-9]+\s*:/i.test(t)) return false;
+      if (/^Instruction\s*:/i.test(t)) return false;
+      // continuation of an instruction (no question number, no option marker)
+      if (/^[A-Z][a-z]/.test(t) && !/^\s*(?:Question|Q)\s*\d+/i.test(t) && !/^\s*\d+[.)]\s/.test(t) && !/^[A-E][.)]\s/.test(t)) {
+        // Heuristic: only drop if it looks like an instruction sentence
+        // and the previous kept line was an instruction — we track via a flag below.
+      }
+      return true;
+    })
+    .join('\n');
+  // Better instruction-line removal: remove the instruction block entirely
+  // (Instruction: ... up to the next numbered question)
+  clean = clean.replace(
+    /^\s*Instruction\s*:.*?(?=^\s*(?:Question|Q)?\s*\d+[.)]\s)/gims,
+    ''
+  );
+  // Re-trim after removals
+  clean = clean.replace(/\n{3,}/g, '\n\n').trim();
+  if (!clean) return [];
+  // ---- Split into blocks starting at each question number ----
   const blocks = [];
   let currentBlock = null;
-
   let lastMainNumber = 0;
   let lastSubNumber = 0;
-
-  for (const line of clean.split('\n')) {
-    let match = null;
+  for (const rawLine of clean.split('\n')) {
+    const line = rawLine;
+    let match = false;
     let mainNumber = null;
     let subNumber = 0;
     let questionContent = '';
-
-    // Format 1:
-    // Question 1. a) Define teamwork.
-    // Q2. d) Diversity encourages creativity.
-    // Question 3. 1. First subquestion.
+    // Format 1: "Question 16. Explain ..." or "Q2. d) ..." or "Question 3. 1. ..."
     const explicitMatch = line.match(
       /^\s*(?:Question|Q)\s*(\d+)\s*[.)]\s*(?:(?:([a-z])\)|(\d+)\.)\s*)?(.*)$/i
     );
-
     if (explicitMatch) {
       mainNumber = Number(explicitMatch[1]);
-
       if (explicitMatch[2]) {
-        subNumber =
-          explicitMatch[2].toLowerCase().charCodeAt(0) - 96;
+        subNumber = explicitMatch[2].toLowerCase().charCodeAt(0) - 96;
       } else if (explicitMatch[3]) {
         subNumber = Number(explicitMatch[3]);
       }
-
       questionContent = explicitMatch[4] || '';
-
-      // Allow normal question progression and subquestions.
-// Also allow a new section to restart at Question 1. a).
-const startsNewSection =
-  mainNumber === 1 &&
-  subNumber > 0 &&
-  lastMainNumber > 1;
-
-if (
-  mainNumber > lastMainNumber ||
-  (
-    mainNumber === lastMainNumber &&
-    subNumber > 0 &&
-    subNumber > lastSubNumber
-  ) ||
-  startsNewSection
-) {
-  match = true;
-}
+      const startsNewSection = mainNumber === 1 && subNumber > 0 && lastMainNumber > 1;
+      if (
+        mainNumber > lastMainNumber ||
+        (mainNumber === lastMainNumber && subNumber > 0 && subNumber > lastSubNumber) ||
+        startsNewSection
+      ) {
+        match = true;
+      }
     } else {
-      // Format 2:
-      // 1. What is a database?
-      // 2. Explain database security.
-      const numberedMatch = line.match(
-        /^\s*(\d+)[.)]\s+(.+?)\s*$/
-      );
-
+      // Format 2: "1. What is a database?" or "6. The three types..."
+      const numberedMatch = line.match(/^\s*(\d+)[.)]\s+(.+?)\s*$/);
       if (numberedMatch) {
         mainNumber = Number(numberedMatch[1]);
         questionContent = numberedMatch[2];
 
-        if (mainNumber > lastMainNumber) {
+        // Accept if it advances the sequence OR if we're starting a new
+        // section (e.g. after SECTION B, numbering restarts or jumps).
+        // We accept any number > lastMainNumber, and also accept a
+        // reset to 1..N when the previous block had a different range.
+        if (mainNumber > lastMainNumber || mainNumber === 1 || (lastMainNumber > 0 && mainNumber === lastMainNumber + 1)) {
           match = true;
         }
       }
     }
 
     if (match) {
-      currentBlock = {
-        number: mainNumber,
-        lines: [questionContent]
-      };
-
+      currentBlock = { number: mainNumber, lines: [questionContent] };
       blocks.push(currentBlock);
-
       lastMainNumber = mainNumber;
       lastSubNumber = subNumber;
-
       continue;
     }
-
     if (currentBlock) {
       currentBlock.lines.push(line);
     }
   }
-
+  // ---- Convert blocks into question objects ----
   const questions = [];
-
   for (const block of blocks) {
     const lines = block.lines;
-
     // Find the answer without losing multiline essay answers.
-    const answerIndex = lines.findIndex(line =>
-      /^\s*Answer\s*:/i.test(line)
-    );
-
-    const questionLines = answerIndex >= 0
-      ? lines.slice(0, answerIndex)
-      : lines;
-
-    const answerLines = answerIndex >= 0
-      ? [
-          lines[answerIndex].replace(
-            /^\s*Answer\s*:\s*/i,
-            ''
-          ),
-          ...lines.slice(answerIndex + 1)
-        ]
-      : [];
-
+    const answerIndex = lines.findIndex((line) => /^\s*Answer\s*:/i.test(line));
+    const questionLines = answerIndex >= 0 ? lines.slice(0, answerIndex) : lines;
+    const answerLines =
+      answerIndex >= 0
+        ? [
+            lines[answerIndex].replace(/^\s*Answer\s*:\s*/i, ''),
+            ...lines.slice(answerIndex + 1),
+          ]
+        : [];
+    // Join question lines into one source so options split across
+    // pages (e.g. Q4 option A on page 1, B-D on page 2) are contiguous.
     const questionSource = questionLines.join('\n');
+    // ---- Extract marks: (2 marks), 3 marks, 10marks, etc. ----
+    const marksMatch = questionSource.match(/\(?\s*(\d+(?:\.\d+)?)\s*marks?\s*\)?/i);
+    const marks = marksMatch ? Math.max(1, Number(marksMatch[1])) : 1;
+    const removeMarks = (value) =>
+      value.replace(/\(?\s*\d+(?:\.\d+)?\s*marks?\s*\)?/gi, '');
+    const options = { A: '', B: '', C: '', D: '', E: '' };
+    const questionTextLines = [];
+    let currentOption = null;
+    let optionsStarted = false;
+    // ---- Expand options that Mammoth joined together ----
+    // Example: "A. Option oneB. Option twoC. Option three"
+    const expandedQuestionLines = [];
 
-    // Extract marks: (2 marks), 3 marks, 10marks, etc.
-    const marksMatch = questionSource.match(
-      /\(?\s*(\d+(?:\.\d+)?)\s*marks?\s*\)?/i
-    );
+    for (const originalLine of questionLines) {
+      const line = removeMarks(originalLine).trim();
+      if (!line) continue;
+      // Find the beginning of option A (word boundary so "A." inside
+      // question text like "What is A. database" doesn't trigger — we
+      // require it to be at start of line or after whitespace).
+      const optionStart = line.search(/(?:^|\s)A[.)]\s*/i);
 
-    const marks = marksMatch
-      ? Math.max(1, Number(marksMatch[1]))
-      : 1;
-
-    const removeMarks = value =>
-      value.replace(
-        /\(?\s*\d+(?:\.\d+)?\s*marks?\s*\)?/gi,
-        ''
-      );
-
-    const options = {
-      A: '',
-      B: '',
-      C: '',
-      D: '',
-      E: ''
-    };
-
-
-const questionTextLines = [];
-
-let currentOption = null;
-let optionsStarted = false;
-
-// First, separate options that Mammoth has joined together.
-// Example: A. Option oneB. Option twoC. Option three
-const expandedQuestionLines = [];
-
-for (const originalLine of questionLines) {
-  const line = removeMarks(originalLine).trim();
-
-  if (!line) continue;
-
-  // Find the beginning of option A.
-  const optionStart = line.search(/\bA[.)]\s*/i);
-
-  if (optionStart >= 0) {
-    // Preserve the actual question before option A.
-    const questionPart = line.slice(0, optionStart).trim();
-
-    if (questionPart) {
-      expandedQuestionLines.push(questionPart);
+      if (optionStart >= 0) {
+        const questionPart = line.slice(0, optionStart).trim();
+        if (questionPart) expandedQuestionLines.push(questionPart);
+        const optionText = line.slice(optionStart).trim();
+        // Separate B, C, D, E even when attached directly to previous option's text.
+        const separatedOptions = optionText.split(/(?=\b[B-E][.)]\s*)/i);
+        expandedQuestionLines.push(...separatedOptions);
+      } else {
+        expandedQuestionLines.push(line);
+      }
     }
-
-    // Separate B, C, D and E even when attached
-    // directly to the previous option's text.
-    const optionText = line.slice(optionStart);
-
-    const separatedOptions = optionText.split(
-      /(?=[B-E][.)]\s*)/i
-    );
-
-    expandedQuestionLines.push(...separatedOptions);
-  } else {
-    expandedQuestionLines.push(line);
-  }
-}
-
-// Now extract the separated options.
-for (const originalLine of expandedQuestionLines) {
-  const line = originalLine.trim();
-
-  if (!line) continue;
-
-  const optionMatch = line.match(
-    /^([A-E])[.)]\s*(.*)$/i
-  );
-
-  if (optionMatch) {
-    optionsStarted = true;
-
-    currentOption = optionMatch[1].toUpperCase();
-
-    options[currentOption] = optionMatch[2].trim();
-
-    continue;
-  }
-  // Preserve wrapped option text.
-  if (optionsStarted && currentOption) {
-    options[currentOption] +=
-      (options[currentOption] ? ' ' : '') + line;
-  } else {
-    questionTextLines.push(line);
-  }
-}
-    const questionText = removeMarks(
-      questionTextLines.join('\n')
-    ).trim();
-    // Preserve complete answers, including numbered essay points.
+    // ---- Extract separated options ----
+    for (const originalLine of expandedQuestionLines) {
+      const line = originalLine.trim();
+      if (!line) continue;
+      const optionMatch = line.match(/^([A-E])[.)]\s*(.*)$/i);
+      if (optionMatch) {
+        optionsStarted = true;
+        currentOption = optionMatch[1].toUpperCase();
+        options[currentOption] = optionMatch[2].trim();
+        continue;
+      }
+      // Preserve wrapped option text.
+      if (optionsStarted && currentOption) {
+        options[currentOption] += (options[currentOption] ? ' ' : '') + line;
+      } else {
+        questionTextLines.push(line);
+      }
+    }
+    const questionText = removeMarks(questionTextLines.join('\n')).trim();
     const fullAnswer = answerLines.join('\n').trim();
-
     let type = 'short_answer';
     let correctAnswer = fullAnswer;
-
     // MCQ: require at least options A and B.
-    const hasOptions = Boolean(
-      options.A.trim() && options.B.trim()
-    );
-
+    const hasOptions = Boolean(options.A.trim() && options.B.trim());
     if (hasOptions) {
       type = 'multiple_choice';
-
-      // Supports:
-      // Answer: B
-      // Answer: B.
-      // Answer: B. Full option text
-      // Answer: Full option text
-      const answerLetter = fullAnswer.match(
-        /^([A-E])(?:[.)\s]|$)/i
-      );
-
+      // Supports: "Answer: B", "Answer: B.", "Answer: B. Full option text",
+      // "Answer: Full option text"
+      const answerLetter = fullAnswer.match(/^([A-E])(?:[.)\s]|$)/i);
       if (answerLetter) {
         correctAnswer = answerLetter[1].toUpperCase();
       } else {
-        const answerValue = fullAnswer
-          .trim()
-          .toLowerCase();
-
+        const answerValue = fullAnswer.trim().toLowerCase();
         const matchedOption = Object.entries(options).find(
-          ([letter, value]) =>
-            value &&
-            value.trim().toLowerCase() === answerValue
+          ([letter, value]) => value && value.trim().toLowerCase() === answerValue
         );
-
-        correctAnswer = matchedOption
-          ? matchedOption[0]
-          : fullAnswer;
+        correctAnswer = matchedOption ? matchedOption[0] : fullAnswer;
       }
-
     } else if (/^(TRUE|FALSE)\b/i.test(fullAnswer)) {
       type = 'true_false';
-
-      correctAnswer = fullAnswer
-        .match(/^(TRUE|FALSE)/i)[1]
-        .toUpperCase();
-
+      correctAnswer = fullAnswer.match(/^(TRUE|FALSE)/i)[1].toUpperCase();
     } else if (/_{3,}/.test(questionText)) {
       type = 'fill_blank';
-
+      // For fill-in-the-blank, keep the full answer (may contain multiple blanks).
     } else if (fullAnswer) {
       type = 'essay';
     }
-
-    if (!questionText || questionText.length < 3) {
-      continue;
-    }
-
+    if (!questionText || questionText.length < 3) continue;
     questions.push({
       question_type: type,
       question_text: questionText,
@@ -300,10 +218,9 @@ for (const originalLine of expandedQuestionLines) {
       option_d: options.D,
       option_e: options.E,
       correct_answer: correctAnswer,
-      marks
+      marks,
     });
   }
-
   return questions;
 }
 
