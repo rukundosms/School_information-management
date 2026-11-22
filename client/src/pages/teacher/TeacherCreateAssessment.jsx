@@ -911,7 +911,16 @@ const confirmPreviewImport = async () => {
                   )}
                   {q.question_type === 'true_false' && <p className="text-xs text-gray-700"><strong>Answer:</strong> <span className="font-mono">{q.correct_answer}</span></p>}
                   {q.question_type === 'fill_blank' && q.correct_answer && <p className="text-xs text-gray-700 whitespace-pre-wrap"><strong>Answer key:</strong> {q.correct_answer}</p>}
-                </div>
+                {['essay', 'short_answer', 'matching'].includes(q.question_type) && q.correct_answer && (
+  <div className="mt-2 rounded-lg border border-green-200 bg-green-50 p-3">
+    <p className="mb-1 text-sm font-bold text-green-800">
+      Predefined Answer:
+    </p>
+    <p className="text-sm text-gray-700 whitespace-pre-wrap">
+      {q.correct_answer}
+    </p>
+  </div>
+)}</div>
               ))}
             </div>
             <div className="px-6 py-4 border-t bg-gray-50 rounded-b-xl flex justify-end gap-3">
