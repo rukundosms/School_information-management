@@ -162,45 +162,76 @@ if (
       E: ''
     };
 
-    const questionTextLines = [];
 
-    let currentOption = null;
-    let optionsStarted = false;
+const questionTextLines = [];
 
-    // Extract MCQ options.
-    // trim() allows options with leading spaces.
-    for (const originalLine of questionLines) {
-      const line = removeMarks(originalLine).trim();
+let currentOption = null;
+let optionsStarted = false;
 
-      if (!line) continue;
+// First, separate options that Mammoth has joined together.
+// Example: A. Option oneB. Option twoC. Option three
+const expandedQuestionLines = [];
 
-      const optionMatch = line.match(
-        /^([A-E])[.)]\s*(.*)$/i
-      );
+for (const originalLine of questionLines) {
+  const line = removeMarks(originalLine).trim();
 
-      if (optionMatch) {
-        optionsStarted = true;
+  if (!line) continue;
 
-        currentOption = optionMatch[1].toUpperCase();
+  // Find the beginning of option A.
+  const optionStart = line.search(/\bA[.)]\s*/i);
 
-        options[currentOption] = optionMatch[2].trim();
+  if (optionStart >= 0) {
+    // Preserve the actual question before option A.
+    const questionPart = line.slice(0, optionStart).trim();
 
-        continue;
-      }
-
-      // Preserve wrapped option text.
-      if (optionsStarted && currentOption) {
-        options[currentOption] +=
-          (options[currentOption] ? ' ' : '') + line;
-      } else {
-        questionTextLines.push(line);
-      }
+    if (questionPart) {
+      expandedQuestionLines.push(questionPart);
     }
 
+    // Separate B, C, D and E even when attached
+    // directly to the previous option's text.
+    const optionText = line.slice(optionStart);
+
+    const separatedOptions = optionText.split(
+      /(?=[B-E][.)]\s*)/i
+    );
+
+    expandedQuestionLines.push(...separatedOptions);
+  } else {
+    expandedQuestionLines.push(line);
+  }
+}
+
+// Now extract the separated options.
+for (const originalLine of expandedQuestionLines) {
+  const line = originalLine.trim();
+
+  if (!line) continue;
+
+  const optionMatch = line.match(
+    /^([A-E])[.)]\s*(.*)$/i
+  );
+
+  if (optionMatch) {
+    optionsStarted = true;
+
+    currentOption = optionMatch[1].toUpperCase();
+
+    options[currentOption] = optionMatch[2].trim();
+
+    continue;
+  }
+  // Preserve wrapped option text.
+  if (optionsStarted && currentOption) {
+    options[currentOption] +=
+      (options[currentOption] ? ' ' : '') + line;
+  } else {
+    questionTextLines.push(line);
+  }
+}
     const questionText = removeMarks(
       questionTextLines.join('\n')
     ).trim();
-
     // Preserve complete answers, including numbered essay points.
     const fullAnswer = answerLines.join('\n').trim();
 
@@ -409,7 +440,7 @@ export default function TeacherCreateAssessment() {
     setError(''); setSuccess('');
     if (!currentQuestion.question_text.trim()) { setError('Question text is required'); return; }
     if (!currentQuestion.marks || parseInt(currentQuestion.marks, 10) < 1) { setError('Marks must be at least 1'); return; }
-    
+
     let finalType = currentQuestion.question_type;
     if (finalType === 'short_answer' && currentQuestion.question_text.includes('____')) {
       finalType = 'fill_blank';
