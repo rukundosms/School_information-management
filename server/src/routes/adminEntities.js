@@ -308,6 +308,28 @@ router.post('/check-teacher-permision', async (req, res) => {
   }
 });
 
+router.post('/check-class-permision', async (req, res) => {
+  const { cid, mid, tid } = req.body;
+  if (!cid || !mid || !tid) {
+    return res.status(400).json({
+      error: 'cid, mid, and tid required'
+    });
+  }
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM permision WHERE cid = ? AND mid = ? AND tid = ?',
+      [cid, mid, tid]
+    );
+    res.json({
+      exists: rows.length >= 1
+    });
+  } catch (e) {
+    res.status(500).json({
+      error: e.message
+    });
+  }
+});
+
 router.post('/grant-permision', async (req, res) => {
   const { cid, tid, mid } = req.body;
   if (!cid || !tid || !mid) return res.status(400).json({ error: 'cid, tid, and mid required' });
