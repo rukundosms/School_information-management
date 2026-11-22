@@ -70,8 +70,22 @@ const PermissionModules = () => {
   const handleModuleSelect = async (module) => {
     const teacherId = sessionStorage.getItem('teacher');
     const classId = sessionStorage.getItem('cl');
-    
+    console.log('PERMISSION DEBUG:', {
+  teacherId,
+  classId,
+  moduleId: module.moid
+});
+const teacherData = {
+  cid: classId,
+  mid: module.moid,
+  tid: teacherId
+};
+
+console.log('TEACHER CHECK DATA:', teacherData);
+
+const teacherCheck = await checkTeacherPermission(teacherData);
     try {
+      
       // Check if teacher already has this permission
       const teacherCheck = await checkTeacherPermission({
         cid: classId,
