@@ -150,26 +150,45 @@ export default function TeacherDownloadResponses() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex flex-wrap justify-between items-start gap-4">
-            <div>
-              <Link
-                to="/teacher/dashboard"
-                className="text-sm font-semibold text-green-700 hover:underline inline-flex items-center gap-1 mb-2"
-              >
-                <i className="fas fa-arrow-left"></i> Back to Dashboard
-              </Link>
-              <h1 className="text-3xl font-bold text-green-900 flex items-center gap-3">
-                <i className="fas fa-download"></i> Download Student Answers
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Download answered papers for each assessment — print-ready for portfolios
-              </p>
-            </div>
-          </div>
-        </div>
+{/* Header with School and RTB Logos */}
+<div className="bg-white rounded-xl shadow-lg p-6 mb-6">
 
+  <div className="flex items-start justify-between gap-3">
+    {/* LEFT: School Logo */}
+    <div className="flex-shrink-0">
+      <img
+        src="/logo.jpg"
+        alt="School Logo"
+        className="w-16 h-16 md:w-24 md:h-24 object-contain"
+      />
+    </div>
+    {/* CENTER: Page Information */}
+    <div className="flex-1 text-center">
+      <Link
+        to="/teacher/dashboard"
+        className="text-sm font-semibold text-green-700 hover:underline inline-flex items-center gap-1 mb-2"
+      >
+        <i className="fas fa-arrow-left"></i>
+        Back to Dashboard
+      </Link>
+      <h1 className="text-xl md:text-3xl font-bold text-green-900">
+        <i className="fas fa-download"></i>
+        Download Student Answers
+      </h1>
+      <p className="text-gray-600 mt-2 text-xs md:text-sm">
+        Download answered papers for each assessment — print-ready for portfolios
+      </p>
+    </div>
+    {/* RIGHT: RTB Logo */}
+    <div className="flex-shrink-0">
+      <img
+        src="/rtb.png"
+        alt="RTB Logo"
+        className="w-16 h-16 md:w-24 md:h-24 object-contain"
+      />
+    </div>
+  </div>
+</div>
         {/* Alerts */}
         {error && (
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center gap-3">
