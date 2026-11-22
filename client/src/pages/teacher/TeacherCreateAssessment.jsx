@@ -8,47 +8,104 @@ import { apiFetch } from '../../api/client';
 // Handles: MCQs (A-E), True/False, Fill in the blanks, Essays.
 // ============================================================
 
+
 function parseUniversalQuestions(text) {
   if (!text) return [];
 
+  // Normalize text extracted from Word documents.
   const clean = text
-    .replace(/^=+\s*Page\s+\d+\s*=+$/gim, '')
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-    .replace(/\t/g, ' ')
-    .trim();
+  .replace(/^=+\s*Page\s+\d+\s*=+$/gim, '')
+  .replace(/\r\n/g, '\n')
+  .replace(/\r/g, '\n')
+  .replace(/\t/g, ' ')
+
+  // Convert HTML space entities into normal spaces.
+  .replace(/&(?:#x0*20|#0*32|#x0*a0|#0*160|nbsp);/gi, ' ')
+
+  .trim();
 
   if (!clean) return [];
-
-  // Recognize question headings.
-  // Numbered answer points are not treated as questions
-  // because question numbering must be sequential.
-  const questionStartRe =
-    /^\s*(?:(?:Question|Q)\s*)?(\d+)\s*[.)]\s*(.*)$/i;
 
   const blocks = [];
   let currentBlock = null;
 
-  // FIX: no longer requires strictly sequential numbering.
-  // Any "N." / "N)" / "QN." heading starts a new block, as long as the
-  // number is greater than the last accepted one (prevents answer-point
-  // numbering like "1. ..." inside an essay from spawning new questions).
-  let lastAcceptedNumber = 0;
+  let lastMainNumber = 0;
+  let lastSubNumber = 0;
 
   for (const line of clean.split('\n')) {
-    const match = line.match(questionStartRe);
+    let match = null;
+    let mainNumber = null;
+    let subNumber = 0;
+    let questionContent = '';
+
+    // Format 1:
+    // Question 1. a) Define teamwork.
+    // Q2. d) Diversity encourages creativity.
+    // Question 3. 1. First subquestion.
+    const explicitMatch = line.match(
+      /^\s*(?:Question|Q)\s*(\d+)\s*[.)]\s*(?:(?:([a-z])\)|(\d+)\.)\s*)?(.*)$/i
+    );
+
+    if (explicitMatch) {
+      mainNumber = Number(explicitMatch[1]);
+
+      if (explicitMatch[2]) {
+        subNumber =
+          explicitMatch[2].toLowerCase().charCodeAt(0) - 96;
+      } else if (explicitMatch[3]) {
+        subNumber = Number(explicitMatch[3]);
+      }
+
+      questionContent = explicitMatch[4] || '';
+
+      // Allow normal question progression and subquestions.
+// Also allow a new section to restart at Question 1. a).
+const startsNewSection =
+  mainNumber === 1 &&
+  subNumber > 0 &&
+  lastMainNumber > 1;
+
+if (
+  mainNumber > lastMainNumber ||
+  (
+    mainNumber === lastMainNumber &&
+    subNumber > 0 &&
+    subNumber > lastSubNumber
+  ) ||
+  startsNewSection
+) {
+  match = true;
+}
+    } else {
+      // Format 2:
+      // 1. What is a database?
+      // 2. Explain database security.
+      const numberedMatch = line.match(
+        /^\s*(\d+)[.)]\s+(.+?)\s*$/
+      );
+
+      if (numberedMatch) {
+        mainNumber = Number(numberedMatch[1]);
+        questionContent = numberedMatch[2];
+
+        if (mainNumber > lastMainNumber) {
+          match = true;
+        }
+      }
+    }
 
     if (match) {
-      const n = Number(match[1]);
-      if (n > lastAcceptedNumber) {
-        currentBlock = {
-          number: n,
-          lines: [match[2]]
-        };
-        blocks.push(currentBlock);
-        lastAcceptedNumber = n;
-        continue;
-      }
+      currentBlock = {
+        number: mainNumber,
+        lines: [questionContent]
+      };
+
+      blocks.push(currentBlock);
+
+      lastMainNumber = mainNumber;
+      lastSubNumber = subNumber;
+
+      continue;
     }
 
     if (currentBlock) {
@@ -61,7 +118,7 @@ function parseUniversalQuestions(text) {
   for (const block of blocks) {
     const lines = block.lines;
 
-    // Locate Answer: without losing multiline model answers.
+    // Find the answer without losing multiline essay answers.
     const answerIndex = lines.findIndex(line =>
       /^\s*Answer\s*:/i.test(line)
     );
@@ -72,14 +129,17 @@ function parseUniversalQuestions(text) {
 
     const answerLines = answerIndex >= 0
       ? [
-          lines[answerIndex].replace(/^\s*Answer\s*:\s*/i, ''),
+          lines[answerIndex].replace(
+            /^\s*Answer\s*:\s*/i,
+            ''
+          ),
           ...lines.slice(answerIndex + 1)
         ]
       : [];
 
-    // Extract marks from the question portion first.
     const questionSource = questionLines.join('\n');
 
+    // Extract marks: (2 marks), 3 marks, 10marks, etc.
     const marksMatch = questionSource.match(
       /\(?\s*(\d+(?:\.\d+)?)\s*marks?\s*\)?/i
     );
@@ -88,7 +148,6 @@ function parseUniversalQuestions(text) {
       ? Math.max(1, Number(marksMatch[1]))
       : 1;
 
-    // Remove marks only; preserve underscores and question wording.
     const removeMarks = value =>
       value.replace(
         /\(?\s*\d+(?:\.\d+)?\s*marks?\s*\)?/gi,
@@ -104,24 +163,32 @@ function parseUniversalQuestions(text) {
     };
 
     const questionTextLines = [];
+
     let currentOption = null;
     let optionsStarted = false;
 
-    // Extract MCQ options while preserving the question text.
+    // Extract MCQ options.
+    // trim() allows options with leading spaces.
     for (const originalLine of questionLines) {
       const line = removeMarks(originalLine).trim();
 
       if (!line) continue;
 
-      const optionMatch = line.match(/^([A-E])[.)]\s*(.*)$/i);
+      const optionMatch = line.match(
+        /^([A-E])[.)]\s*(.*)$/i
+      );
 
       if (optionMatch) {
         optionsStarted = true;
+
         currentOption = optionMatch[1].toUpperCase();
+
         options[currentOption] = optionMatch[2].trim();
+
         continue;
       }
 
+      // Preserve wrapped option text.
       if (optionsStarted && currentOption) {
         options[currentOption] +=
           (options[currentOption] ? ' ' : '') + line;
@@ -134,19 +201,28 @@ function parseUniversalQuestions(text) {
       questionTextLines.join('\n')
     ).trim();
 
-    // Keep the complete answer, including numbered essay points.
+    // Preserve complete answers, including numbered essay points.
     const fullAnswer = answerLines.join('\n').trim();
 
     let type = 'short_answer';
     let correctAnswer = fullAnswer;
 
-    const hasOptions = Boolean(options.A && options.B);
+    // MCQ: require at least options A and B.
+    const hasOptions = Boolean(
+      options.A.trim() && options.B.trim()
+    );
 
     if (hasOptions) {
       type = 'multiple_choice';
 
-      // Support answers written as A, A., or the full option text.
-      const answerLetter = fullAnswer.match(/^([A-E])(?:[.)\s]|$)/i);
+      // Supports:
+      // Answer: B
+      // Answer: B.
+      // Answer: B. Full option text
+      // Answer: Full option text
+      const answerLetter = fullAnswer.match(
+        /^([A-E])(?:[.)\s]|$)/i
+      );
 
       if (answerLetter) {
         correctAnswer = answerLetter[1].toUpperCase();
@@ -157,7 +233,8 @@ function parseUniversalQuestions(text) {
 
         const matchedOption = Object.entries(options).find(
           ([letter, value]) =>
-            value && value.trim().toLowerCase() === answerValue
+            value &&
+            value.trim().toLowerCase() === answerValue
         );
 
         correctAnswer = matchedOption
@@ -168,8 +245,9 @@ function parseUniversalQuestions(text) {
     } else if (/^(TRUE|FALSE)\b/i.test(fullAnswer)) {
       type = 'true_false';
 
-      // Keep the answer compatible with True/False automatic grading.
-      correctAnswer = fullAnswer.match(/^(TRUE|FALSE)/i)[1].toUpperCase();
+      correctAnswer = fullAnswer
+        .match(/^(TRUE|FALSE)/i)[1]
+        .toUpperCase();
 
     } else if (/_{3,}/.test(questionText)) {
       type = 'fill_blank';
@@ -197,6 +275,7 @@ function parseUniversalQuestions(text) {
 
   return questions;
 }
+
 
 // ============================================================
 // COMPONENT
@@ -377,7 +456,10 @@ export default function TeacherCreateAssessment() {
         await serverFallbackUpload(file); return;
       }
 
-      const parsed = parseUniversalQuestions(text);
+      // TEMPORARY DEBUGGING - remove after testing
+console.log('DOCX EXTRACTED TEXT:', JSON.stringify(text));
+console.log('EXTRACTED TEXT LENGTH:', text.length);
+const parsed = parseUniversalQuestions(text);
       if (parsed.length === 0) { setError('Could not auto-detect questions. Try a different format.'); return; }
       setPreviewQuestions(parsed);
     } catch (err) { setError(err.message || 'Upload failed'); } finally { setUploading(false); if (fileInputRef.current) fileInputRef.current.value = null; }
