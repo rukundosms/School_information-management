@@ -126,7 +126,9 @@ router.post('/classes-admin', async (req, res) => {
   if (!level || !class_code) return res.status(400).json({ error: 'level and class_code required' });
   const cn = class_name !== '' ? String(class_name).trim() : String(level).trim();
   try {
-    const [r] = await pool.query('INSERT INTO class (level, class_code, class_name, class_program) VALUES (?, ?, ?, ?)', [String(level).trim(), String(class_code).trim(), cn, class_program || 0]);
+    const [r] = await pool.query('INSERT INTO class (trid, level, class_code, class_name, class_program) VALUES (0, ?, ?, ?, ?)',
+  [String(level).trim(), String(class_code).trim(), cn, class_program || 0]
+);
     res.json({ ok: true, cid: r.insertId });
   } catch (e) {
     res.status(400).json({ error: e.message });
