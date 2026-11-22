@@ -161,7 +161,7 @@ export async function getGrantTeachers() { return apiFetch('/api/admin/grant-tea
 export async function getGrantTeacher(tid) { return apiFetch(`/api/admin/grant-teacher/${tid}`); }
 export async function getGrantClasses() { return apiFetch('/api/admin/grant-classes'); }
 export async function getGrantModules(classId) { return apiFetch(`/api/admin/grant-modules/${classId}`); }
-export async function checkTeacherPermission(data) { return apiFetch('/api/admin/check-teacher-permission', { method: 'POST', body: JSON.stringify(data) }); }
+export async function checkTeacherPermission(data) { return apiFetch('/api/admin/check-teacher-permision', { method: 'POST', body: JSON.stringify(data) }); }
 export async function checkClassPermission(data) { return apiFetch('/api/admin/check-class-permission', { method: 'POST', body: JSON.stringify(data) }); }
 export async function grantPermission(data) { return apiFetch('/api/admin/grant-permission', { method: 'POST', body: JSON.stringify(data) }); }
 export async function getAdminDashboard() { return apiFetch('/api/admin/dashboard'); }
