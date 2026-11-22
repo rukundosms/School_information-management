@@ -309,20 +309,24 @@ router.post('/check-teacher-permision', async (req, res) => {
 });
 
 router.post('/check-class-permision', async (req, res) => {
-  const { cid, mid, tid } = req.body;
-  if (!cid || !mid || !tid) {
+  const { cid, mid } = req.body;
+
+  if (!cid || !mid) {
     return res.status(400).json({
-      error: 'cid, mid, and tid required'
+      error: 'cid and mid required'
     });
   }
+
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM permision WHERE cid = ? AND mid = ? AND tid = ?',
-      [cid, mid, tid]
+      'SELECT * FROM permision WHERE cid = ? AND mid = ?',
+      [cid, mid]
     );
+
     res.json({
-      exists: rows.length >= 1
+      exists: rows.length > 0
     });
+
   } catch (e) {
     res.status(500).json({
       error: e.message
