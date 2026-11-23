@@ -482,7 +482,8 @@ router.post('/online-classes/:id/reaction', async (req, res) => {
 // ============================================================
 // ASSESSMENT WAITING ROOM — REQUEST START
 // ============================================================
-router.post('/assessments/:id/request-start', startRequestLimiter, async (req, res) => {
+router.post('/assessments/:id/request-start', async (req, res) => {
+  
   const assessmentId = parseInt(req.params.id, 10);
   if (!assessmentId) return res.status(400).json({ error: 'Invalid assessment ID' });
   const sid = req.user.sid;
