@@ -86,7 +86,7 @@ function clientTz(req) {
 // ============================================================
 const startRequestLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 5,
+  max: 55,
   keyGenerator: (req) => `${req.user?.sid}:${req.params.id}`,
   message: { error: 'Too many requests. Please wait a minute.' },
   standardHeaders: true,

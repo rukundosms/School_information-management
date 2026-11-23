@@ -182,8 +182,10 @@ export default function StudentAssessments() {
   // ==========================================
   // REQUEST START (WebSocket + Poll)
   // ==========================================
-  const requestStart = async (assessment) => {
-    if (requestingAssessment === assessment.assessment_id) return;
+ const requestStart = async (assessment) => {
+    if (requestingRef.current === assessment.assessment_id) return;
+
+    requestingRef.current = assessment.assessment_id;
     if (requestPollRef.current) clearInterval(requestPollRef.current);
 
     setRequestingAssessment(assessment.assessment_id);
