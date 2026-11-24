@@ -793,58 +793,71 @@ router.put('/assessments/:id/draft', async (req, res) => {
 // ============================================================
 router.post('/assessments/:id/submit', submitLimiter, async (req, res) => {
   const assessmentId = parseInt(req.params.id, 10);
-  const { answers: requestAnswers, submit_reason = 'manual' } = req.body || {};
-  if (!assessmentId || (requestAnswers !== undefined && !Array.isArray(requestAnswers))) return res.status(400).json({ error: 'Invalid submission data' });
+  const { answers: requestAnswers, submit_reason = 'manual', incidents: requestIncidents } = req.body || {};
+  if (!assessmentId || (requestAnswers !== undefined && !Array.isArray(requestAnswers)))
+    return res.status(400).json({ error: 'Invalid submission data' });
 
   const providedToken = req.headers['x-approval-token'];
   if (!providedToken || typeof providedToken !== 'string')
     return res.status(403).json({ error: 'Missing approval token.' });
 
   const tz = clientTz(req);
+  const conn = await pool.getConnection();
 
   try {
-    const [assessments] = await pool.query(
+    await conn.beginTransaction();
+
+    const [assessments] = await conn.query(
       `SELECT a.* FROM assessments a WHERE a.assessment_id = ? AND a.status = 'published' AND a.cid = ?`,
       [assessmentId, req.user.classId]);
-    if (assessments.length === 0) return res.status(404).json({ error: 'Assessment not found for your class' });
+    if (assessments.length === 0) {
+      await conn.rollback();
+      return res.status(404).json({ error: 'Assessment not found for your class' });
+    }
     const assessment = assessments[0];
 
-    const [approval] = await pool.query(
+    const [approval] = await conn.query(
       `SELECT id, status, approval_token, approval_token_expires_at, consumed_at
        FROM assessment_waiting_room WHERE assessment_id = ? AND sid = ?`,
       [assessmentId, req.user.sid]);
     const row = approval[0];
     if (!row || row.status !== 'approved' || !row.approval_token ||
         row.approval_token !== providedToken || row.consumed_at) {
+      await conn.rollback();
       return res.status(403).json({ error: 'Invalid or expired approval token.' });
     }
 
     const startDt = parseDtInZone(assessment.start_date, assessment.start_time, tz);
     const endDt = parseDtInZone(assessment.end_date, assessment.end_time, tz);
-    if (!startDt || !endDt) return res.status(500).json({ error: 'Assessment has invalid schedule dates.' });
+    if (!startDt || !endDt) {
+      await conn.rollback();
+      return res.status(500).json({ error: 'Assessment has invalid schedule dates.' });
+    }
 
     const now = new Date();
     const hardDeadline = assessment.duration_minutes
       ? new Date(startDt.getTime() + assessment.duration_minutes * 60000) : endDt;
     const finalDeadline = endDt < hardDeadline ? endDt : hardDeadline;
     const GRACE_MS = 60 * 1000;
-    if (now.getTime() > finalDeadline.getTime() + GRACE_MS && !assessment.allow_late_submission)
+    if (now.getTime() > finalDeadline.getTime() + GRACE_MS && !assessment.allow_late_submission) {
+      await conn.rollback();
       return res.status(400).json({ error: 'The time for this assessment has ended. Submission rejected.' });
+    }
 
-    const [existing] = await pool.query(
+    const [existing] = await conn.query(
       `SELECT submission_id FROM assessment_submissions WHERE assessment_id = ? AND sid = ? LIMIT 1`,
       [assessmentId, req.user.sid]);
-    if (existing.length > 0) return res.status(400).json({ error: 'Already submitted' });
+    if (existing.length > 0) {
+      await conn.rollback();
+      return res.status(400).json({ error: 'Already submitted' });
+    }
 
-    // Prefer the just-sent answer array (the client saves it before submitting).
-    // If the client has no answer payload, recover the last server-saved draft.
     let finalAnswers = requestAnswers;
     if (!Array.isArray(finalAnswers)) {
-      const [draftRows] = await pool.query(
+      const [draftRows] = await conn.query(
         `SELECT answers FROM assessment_answer_drafts
          WHERE assessment_id = ? AND sid = ? AND status = 'draft' LIMIT 1`,
-        [assessmentId, req.user.sid]
-      );
+        [assessmentId, req.user.sid]);
       if (draftRows.length) {
         try {
           finalAnswers = typeof draftRows[0].answers === 'string'
@@ -853,25 +866,49 @@ router.post('/assessments/:id/submit', submitLimiter, async (req, res) => {
       }
     }
     if (!Array.isArray(finalAnswers)) {
+      await conn.rollback();
       return res.status(400).json({ error: 'No saved answers are available to submit.' });
     }
 
-    const [insert] = await pool.query(
+    const [insert] = await conn.query(
       `INSERT INTO assessment_submissions (assessment_id, sid, answers, status, submission_date)
        VALUES (?, ?, ?, 'submitted', NOW())`,
       [assessmentId, req.user.sid, JSON.stringify(finalAnswers)]);
 
-    await pool.query(
+    // --- Persist incidents (best-effort inside txn; sanitized) ---
+    if (Array.isArray(requestIncidents) && requestIncidents.length) {
+      const clean = requestIncidents.slice(0, 200).map(sanitizeIncident).filter(Boolean);
+      if (clean.length) {
+        const ph = [];
+        const vals = [];
+        for (const inc of clean) {
+          ph.push('(?, ?, ?, ?, ?, ?, ?, NOW())');
+          vals.push(assessmentId, req.user.sid, inc.type, inc.severity,
+                    inc.detail, inc.uuid, inc.clientTs);
+        }
+        await conn.query(
+          `INSERT INTO assessment_incidents
+             (assessment_id, sid, incident_type, severity, detail, client_uuid, client_ts, created_at)
+           VALUES ${ph.join(',')}
+           ON DUPLICATE KEY UPDATE incident_id = incident_id`,
+          vals
+        );
+      }
+    }
+
+    await conn.query(
       `UPDATE assessment_answer_drafts
        SET status = 'submitted', submit_reason = ?, submitted_at = NOW()
        WHERE assessment_id = ? AND sid = ? AND status = 'draft'`,
-      [String(submit_reason || 'manual').slice(0, 60), assessmentId, req.user.sid]
-    );
+      [String(submit_reason || 'manual').slice(0, 60), assessmentId, req.user.sid]);
 
-    await pool.query(
+    await conn.query(
       `UPDATE assessment_waiting_room SET consumed_at = NOW(), approval_token = NULL,
               approval_token_expires_at = NULL WHERE id = ?`, [row.id]);
 
+    await conn.commit();
+
+    // Notification is best-effort, outside the transaction
     try {
       const [teachers] = await pool.query(
         `SELECT tid, title FROM assessments WHERE assessment_id = ?`, [assessmentId]);
@@ -885,11 +922,13 @@ router.post('/assessments/:id/submit', submitLimiter, async (req, res) => {
 
     res.json({ ok: true, submission_id: insert.insertId, message: 'Assessment submitted successfully' });
   } catch (e) {
+    try { await conn.rollback(); } catch {}
     req.log?.error({ err: e }, 'submit failed');
     res.status(500).json({ error: e.message });
+  } finally {
+    conn.release();
   }
 });
-
 // ============================================================
 // HEARTBEAT (anti-cheat telemetry)
 // ============================================================
@@ -908,4 +947,110 @@ router.post('/assessments/:id/heartbeat', async (req, res) => {
   }
 });
 
+const incidentLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120, // generous — 2/sec ceiling
+  keyGenerator: (req) => `${req.user?.sid}:${req.params.id}`,
+  message: { error: 'Too many incident reports.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+// ============================================================
+// INCIDENT REPORTING (anti-cheat telemetry)
+// ============================================================
+const ALLOWED_INCIDENT_TYPES = new Set([
+  'tab_hidden', 'window_blur', 'copy', 'paste', 'cut',
+  'context_menu', 'shortcut', 'fullscreen_exit', 'devtools_suspect',
+]);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function sanitizeIncident(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const type = String(raw.incident_type || '').slice(0, 40);
+  if (!ALLOWED_INCIDENT_TYPES.has(type)) return null;
+  const severity = Math.max(1, Math.min(3, parseInt(raw.severity, 10) || 1));
+  const detail = raw.detail == null ? null : String(raw.detail).slice(0, 480);
+  const uuid = typeof raw.client_uuid === 'string' && UUID_RE.test(raw.client_uuid)
+    ? raw.client_uuid.toLowerCase() : null;
+  let clientTs = null;
+  if (raw.client_ts) {
+    const d = new Date(raw.client_ts);
+    if (!isNaN(d)) clientTs = d;
+  }
+  return { type, severity, detail, uuid, clientTs };
+}
+
+router.post('/assessments/:id/incident', incidentLimiter, async (req, res) => {
+  const assessmentId = parseInt(req.params.id, 10);
+  if (!assessmentId) return res.status(400).json({ error: 'Invalid assessment ID' });
+
+  const providedToken = req.headers['x-approval-token'];
+  if (!providedToken || typeof providedToken !== 'string') {
+    return res.status(403).json({ error: 'Missing approval token.' });
+  }
+
+  const raw = Array.isArray(req.body?.incidents) ? req.body.incidents : [];
+  if (raw.length === 0) return res.json({ ok: true, stored: 0 });
+  if (raw.length > 100) return res.status(413).json({ error: 'Too many incidents in one batch.' });
+
+  const clean = raw.map(sanitizeIncident).filter(Boolean);
+  if (clean.length === 0) return res.json({ ok: true, stored: 0 });
+
+  try {
+    // Validate token + ownership once
+    const [assessments] = await pool.query(
+      `SELECT assessment_id FROM assessments
+       WHERE assessment_id = ? AND status = 'published' AND cid = ?`,
+      [assessmentId, req.user.classId]
+    );
+    if (!assessments.length) return res.status(404).json({ error: 'Assessment not found for your class' });
+
+    const [approval] = await pool.query(
+      `SELECT status, approval_token FROM assessment_waiting_room
+       WHERE assessment_id = ? AND sid = ? LIMIT 1`,
+      [assessmentId, req.user.sid]
+    );
+    const aRow = approval[0];
+    if (!aRow || aRow.status !== 'approved' || aRow.approval_token !== providedToken) {
+      return res.status(403).json({ error: 'Invalid or expired approval token.' });
+    }
+
+    // Batch insert with idempotency via client_uuid unique index.
+    // Build a single multi-row INSERT.
+    const placeholders = [];
+    const values = [];
+    for (const inc of clean) {
+      placeholders.push('(?, ?, ?, ?, ?, ?, NOW())');
+      values.push(
+        assessmentId, req.user.sid, inc.type, inc.severity,
+        inc.detail, inc.clientTs
+      );
+    }
+    // Note: client_uuid handled separately due to NULL-uniqueness semantics.
+    // MySQL UNIQUE allows multiple NULLs, so we INSERT IGNORE with uuid when present.
+    // Simpler: insert with uuid, ON DUPLICATE KEY UPDATE incident_id=incident_id.
+    const placeholders2 = [];
+    const values2 = [];
+    for (const inc of clean) {
+      placeholders2.push('(?, ?, ?, ?, ?, ?, ?, NOW())');
+      values2.push(
+        assessmentId, req.user.sid, inc.type, inc.severity,
+        inc.detail, inc.uuid, inc.clientTs
+      );
+    }
+
+    await pool.query(
+      `INSERT INTO assessment_incidents
+         (assessment_id, sid, incident_type, severity, detail, client_uuid, client_ts, created_at)
+       VALUES ${placeholders2.join(',')}
+       ON DUPLICATE KEY UPDATE incident_id = incident_id`,
+      values2
+    );
+
+    res.json({ ok: true, stored: clean.length });
+  } catch (e) {
+    req.log?.error({ err: e }, 'incident report failed');
+    res.status(500).json({ error: e.message });
+  }
+});
 module.exports = router;
