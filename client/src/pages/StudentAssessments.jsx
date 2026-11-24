@@ -135,6 +135,7 @@ function parseMatchingQuestion(text) {
 // MAIN COMPONENT
 // ==========================================
 export default function StudentAssessments() {
+  
   const { t, i18n } = useTranslation(['assessments', 'common']);
 
   // ---- Basic state ----
