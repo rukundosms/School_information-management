@@ -86,7 +86,7 @@ function clientTz(req) {
 // ============================================================
 const startRequestLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 5,
+  max: 200,
   keyGenerator: (req) => `${req.user?.sid}:${req.params.id}`,
   message: { error: 'Too many requests. Please wait a minute.' },
   standardHeaders: true,
@@ -482,7 +482,8 @@ router.post('/online-classes/:id/reaction', async (req, res) => {
 // ============================================================
 // ASSESSMENT WAITING ROOM — REQUEST START
 // ============================================================
-router.post('/assessments/:id/request-start', startRequestLimiter, async (req, res) => {
+router.post('/assessments/:id/request-start', async (req, res) => {
+  
   const assessmentId = parseInt(req.params.id, 10);
   if (!assessmentId) return res.status(400).json({ error: 'Invalid assessment ID' });
   const sid = req.user.sid;
@@ -671,12 +672,129 @@ router.get('/assessments/:id/take', async (req, res) => {
 });
 
 // ============================================================
+// ASSESSMENT ANSWER DRAFTS — CLOUD AUTOSAVE / RESTORE
+// ============================================================
+router.get('/assessments/:id/draft', async (req, res) => {
+  const assessmentId = parseInt(req.params.id, 10);
+  if (!assessmentId) return res.status(400).json({ error: 'Invalid assessment ID' });
+  try {
+    const [owned] = await pool.query(
+      `SELECT assessment_id FROM assessments
+       WHERE assessment_id = ? AND cid = ? AND status = 'published'`,
+      [assessmentId, req.user.classId]
+    );
+    if (!owned.length) return res.status(404).json({ error: 'Assessment not found for your class' });
+
+    const [rows] = await pool.query(
+      `SELECT answers, status, submit_reason, last_saved_at
+       FROM assessment_answer_drafts WHERE assessment_id = ? AND sid = ? LIMIT 1`,
+      [assessmentId, req.user.sid]
+    );
+    if (!rows.length) return res.json({ draft: null });
+
+    let savedAnswers = [];
+    try {
+      savedAnswers = typeof rows[0].answers === 'string'
+        ? JSON.parse(rows[0].answers) : rows[0].answers;
+    } catch { savedAnswers = []; }
+
+    res.json({
+      draft: {
+        answers: Array.isArray(savedAnswers) ? savedAnswers : [],
+        status: rows[0].status,
+        submit_reason: rows[0].submit_reason,
+        last_saved_at: rows[0].last_saved_at,
+      },
+    });
+  } catch (e) {
+    req.log?.error({ err: e }, 'load assessment draft failed');
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/assessments/:id/draft', async (req, res) => {
+  const assessmentId = parseInt(req.params.id, 10);
+  const { answers, submit_reason = null } = req.body || {};
+  if (!assessmentId || !Array.isArray(answers)) {
+    return res.status(400).json({ error: 'Invalid draft data' });
+  }
+  if (answers.length > 500) return res.status(413).json({ error: 'Too many answers in draft' });
+
+  const providedToken = req.headers['x-approval-token'];
+  if (!providedToken || typeof providedToken !== 'string') {
+    return res.status(403).json({ error: 'Missing approval token.' });
+  }
+
+  try {
+    const [assessments] = await pool.query(
+      `SELECT * FROM assessments
+       WHERE assessment_id = ? AND status = 'published' AND cid = ?`,
+      [assessmentId, req.user.classId]
+    );
+    if (!assessments.length) return res.status(404).json({ error: 'Assessment not found for your class' });
+    const assessment = assessments[0];
+
+    const [approval] = await pool.query(
+      `SELECT status, approval_token, consumed_at FROM assessment_waiting_room
+       WHERE assessment_id = ? AND sid = ? LIMIT 1`,
+      [assessmentId, req.user.sid]
+    );
+    const approvalRow = approval[0];
+    if (!approvalRow || approvalRow.status !== 'approved' ||
+        approvalRow.approval_token !== providedToken || approvalRow.consumed_at) {
+      return res.status(403).json({ error: 'Assessment approval is missing or expired.' });
+    }
+
+    const tz = clientTz(req);
+    const startDt = parseDtInZone(assessment.start_date, assessment.start_time, tz);
+    const endDt = parseDtInZone(assessment.end_date, assessment.end_time, tz);
+    if (!startDt || !endDt) return res.status(500).json({ error: 'Assessment has invalid schedule dates.' });
+    const hardDeadline = assessment.duration_minutes
+      ? new Date(startDt.getTime() + assessment.duration_minutes * 60000) : endDt;
+    const finalDeadline = endDt < hardDeadline ? endDt : hardDeadline;
+    if (Date.now() > finalDeadline.getTime() + 60 * 1000 && !assessment.allow_late_submission) {
+      return res.status(409).json({ error: 'Assessment time has ended. Your saved draft is preserved.' });
+    }
+
+    const [existingSubmission] = await pool.query(
+      `SELECT submission_id FROM assessment_submissions
+       WHERE assessment_id = ? AND sid = ? LIMIT 1`,
+      [assessmentId, req.user.sid]
+    );
+    if (existingSubmission.length) return res.status(409).json({ error: 'Assessment has already been submitted.' });
+
+    const [existingDraft] = await pool.query(
+      `SELECT status FROM assessment_answer_drafts WHERE assessment_id = ? AND sid = ? LIMIT 1`,
+      [assessmentId, req.user.sid]
+    );
+    if (existingDraft.length && existingDraft[0].status !== 'draft') {
+      return res.status(409).json({ error: 'This assessment draft is already finalized.' });
+    }
+
+    await pool.query(
+      `INSERT INTO assessment_answer_drafts
+         (assessment_id, sid, answers, status, last_saved_at)
+       VALUES (?, ?, ?, 'draft', NOW())
+       ON DUPLICATE KEY UPDATE
+         answers = IF(status = 'draft', VALUES(answers), answers),
+         last_saved_at = IF(status = 'draft', NOW(), last_saved_at)`,
+      [assessmentId, req.user.sid, JSON.stringify(answers)]
+    );
+
+    res.json({ ok: true, saved: true, saved_at: new Date().toISOString() });
+  } catch (e) {
+    req.log?.error({ err: e }, 'save assessment draft failed');
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ============================================================
 // SUBMIT ASSESSMENT
 // ============================================================
 router.post('/assessments/:id/submit', submitLimiter, async (req, res) => {
   const assessmentId = parseInt(req.params.id, 10);
-  const { answers } = req.body;
-  if (!assessmentId || !Array.isArray(answers)) return res.status(400).json({ error: 'Invalid submission data' });
+  const { answers: requestAnswers, submit_reason = 'manual' } = req.body || {};
+  if (!assessmentId || (requestAnswers !== undefined && !Array.isArray(requestAnswers))) return res.status(400).json({ error: 'Invalid submission data' });
 
   const providedToken = req.headers['x-approval-token'];
   if (!providedToken || typeof providedToken !== 'string')
@@ -718,10 +836,37 @@ router.post('/assessments/:id/submit', submitLimiter, async (req, res) => {
       [assessmentId, req.user.sid]);
     if (existing.length > 0) return res.status(400).json({ error: 'Already submitted' });
 
+    // Prefer the just-sent answer array (the client saves it before submitting).
+    // If the client has no answer payload, recover the last server-saved draft.
+    let finalAnswers = requestAnswers;
+    if (!Array.isArray(finalAnswers)) {
+      const [draftRows] = await pool.query(
+        `SELECT answers FROM assessment_answer_drafts
+         WHERE assessment_id = ? AND sid = ? AND status = 'draft' LIMIT 1`,
+        [assessmentId, req.user.sid]
+      );
+      if (draftRows.length) {
+        try {
+          finalAnswers = typeof draftRows[0].answers === 'string'
+            ? JSON.parse(draftRows[0].answers) : draftRows[0].answers;
+        } catch { finalAnswers = null; }
+      }
+    }
+    if (!Array.isArray(finalAnswers)) {
+      return res.status(400).json({ error: 'No saved answers are available to submit.' });
+    }
+
     const [insert] = await pool.query(
       `INSERT INTO assessment_submissions (assessment_id, sid, answers, status, submission_date)
        VALUES (?, ?, ?, 'submitted', NOW())`,
-      [assessmentId, req.user.sid, JSON.stringify(answers)]);
+      [assessmentId, req.user.sid, JSON.stringify(finalAnswers)]);
+
+    await pool.query(
+      `UPDATE assessment_answer_drafts
+       SET status = 'submitted', submit_reason = ?, submitted_at = NOW()
+       WHERE assessment_id = ? AND sid = ? AND status = 'draft'`,
+      [String(submit_reason || 'manual').slice(0, 60), assessmentId, req.user.sid]
+    );
 
     await pool.query(
       `UPDATE assessment_waiting_room SET consumed_at = NOW(), approval_token = NULL,

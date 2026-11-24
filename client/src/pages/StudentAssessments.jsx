@@ -116,6 +116,7 @@ export default function StudentAssessments() {
   const [quizError, setQuizError] = useState('');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [warnings, setWarnings] = useState(0);
+  const [saveStatus, setSaveStatus] = useState('idle');
 
   // ---- Refs ----
   const answersRef = useRef(answers);
@@ -125,6 +126,7 @@ export default function StudentAssessments() {
   const submittedRef = useRef(false);
   const questionHeadingRef = useRef(null);
   const startedAtRef = useRef(null);
+  const saveQueueRef = useRef(Promise.resolve());
 
   // ---- Approval flow ----
   const [requestingAssessment, setRequestingAssessment] = useState(null);
@@ -182,8 +184,10 @@ export default function StudentAssessments() {
   // ==========================================
   // REQUEST START (WebSocket + Poll)
   // ==========================================
-  const requestStart = async (assessment) => {
-    if (requestingAssessment === assessment.assessment_id) return;
+ const requestStart = async (assessment) => {
+    if (requestingRef.current === assessment.assessment_id) return;
+
+    requestingRef.current = assessment.assessment_id;
     if (requestPollRef.current) clearInterval(requestPollRef.current);
 
     setRequestingAssessment(assessment.assessment_id);
@@ -337,9 +341,35 @@ export default function StudentAssessments() {
         headers: { 'X-Approval-Token': tokenToUse },
       });
 
-      setActiveAssessment(assessment);
       setQuestions(data.questions || []);
       setTimeLeft(data.remaining_seconds ?? null);
+
+      // Restore the latest server copy first; localStorage remains a fallback.
+      try {
+        const cloud = await apiFetch(`/api/student/assessments/${assessment.assessment_id}/draft`, {
+          headers: { 'X-Approval-Token': tokenToUse },
+        });
+        const cloudRows = cloud?.draft?.answers;
+        if (Array.isArray(cloudRows)) {
+          const restored = {};
+          cloudRows.forEach((item) => {
+            if (item && item.qid != null) restored[item.qid] = item.user_answer ?? '';
+          });
+          setAnswers(restored);
+          localStorage.setItem(savedKey, JSON.stringify(restored));
+          setSaveStatus('saved');
+        } else {
+          setSaveStatus('idle');
+        }
+      } catch (draftErr) {
+        console.warn('[assessment] Could not restore cloud draft; using local copy.', draftErr);
+        setAnswers(savedAnswers ? safeParse(savedAnswers) : {});
+        setSaveStatus('offline');
+      }
+
+      // Activate the quiz only after restoration, so autosave cannot overwrite
+      // a newer cloud draft with an older browser copy during page startup.
+      setActiveAssessment(assessment);
 
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -386,6 +416,58 @@ export default function StudentAssessments() {
       return { qid: q.question_id, user_answer: val, user_letter: isChoice ? val : '' };
     });
 
+  const saveDraft = useCallback((assessment, latestAnswers, submitReason = null) => {
+    if (!assessment) return Promise.resolve(false);
+    const key = `assessment_${assessment.assessment_id}_answers`;
+    const snapshot = { ...(latestAnswers || {}) };
+    // Keep a local copy immediately, even when the network is unavailable.
+    try { localStorage.setItem(key, JSON.stringify(snapshot)); } catch {}
+    const payload = buildPayload(snapshot);
+
+    saveQueueRef.current = saveQueueRef.current.catch(() => false).then(async () => {
+      setSaveStatus('saving');
+      try {
+        await apiFetch(`/api/student/assessments/${assessment.assessment_id}/draft`, {
+          method: 'PUT',
+          headers: { 'X-Approval-Token': approvedToken },
+          body: JSON.stringify({ answers: payload, submit_reason: submitReason }),
+        });
+        setSaveStatus('saved');
+        return true;
+      } catch (err) {
+        console.warn('[assessment] Cloud autosave failed; local copy retained.', err);
+        setSaveStatus('offline');
+        return false;
+      }
+    });
+    return saveQueueRef.current;
+  }, [approvedToken, questions]);
+
+  // Save shortly after every answer change, and also every five seconds.
+  useEffect(() => {
+    if (!activeAssessment || submitting || submittedRef.current) return;
+    const timeout = setTimeout(() => {
+      saveDraft(activeAssessment, answers);
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [activeAssessment, answers, saveDraft, submitting]);
+
+  useEffect(() => {
+    if (!activeAssessment || submitting) return;
+    const interval = setInterval(() => {
+      saveDraft(activeAssessment, answersRef.current);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [activeAssessment, saveDraft, submitting]);
+
+  // When connectivity returns, push the latest local answers to TiDB.
+  useEffect(() => {
+    if (!activeAssessment) return;
+    const onOnline = () => saveDraft(activeAssessment, answersRef.current);
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
+  }, [activeAssessment, saveDraft]);
+
   // ==========================================
   // FORCE SUBMIT
   // ==========================================
@@ -405,12 +487,13 @@ export default function StudentAssessments() {
 
         const payload = buildPayload(latest);
         const token = approvedToken;
+        await saveDraft(activeAssessment, latest, reasonKey);
 
         try {
           await apiFetch(`/api/student/assessments/${activeAssessment.assessment_id}/submit`, {
             method: 'POST',
             headers: { 'X-Approval-Token': token },
-            body: JSON.stringify({ answers: payload }),
+            body: JSON.stringify({ answers: payload, submit_reason: reasonKey }),
           });
           clearSavedAnswers();
           setApprovedToken(null);
@@ -424,8 +507,7 @@ export default function StudentAssessments() {
         } catch (netErr) {
           if (netErr.name === 'TypeError' || netErr.status === 0) {
             await queueSubmission(activeAssessment.assessment_id, { answers: payload, token });
-            toast('Offline — your submission will be retried automatically.', { icon: '📶', duration: 6000 });
-            clearSavedAnswers();
+            toast('Offline — your submission will be retried automatically. Your local backup is retained.', { icon: '📶', duration: 6000 });
             setActiveAssessment(null);
             setQuestions([]);
             setAnswers({});
@@ -441,7 +523,7 @@ export default function StudentAssessments() {
         setSubmitting(false);
       }
     },
-    [activeAssessment, questions, submitting, t, approvedToken]
+    [activeAssessment, questions, submitting, t, approvedToken, saveDraft]
   );
 
   // ==========================================
@@ -568,12 +650,13 @@ export default function StudentAssessments() {
       const latest = savedStr ? safeParse(savedStr) : answers;
       const payload = buildPayload(latest);
       const token = approvedToken;
+      await saveDraft(activeAssessment, latest, 'manual');
 
       try {
         await apiFetch(`/api/student/assessments/${activeAssessment.assessment_id}/submit`, {
           method: 'POST',
           headers: { 'X-Approval-Token': token },
-          body: JSON.stringify({ answers: payload }),
+          body: JSON.stringify({ answers: payload, submit_reason: 'manual' }),
         });
         clearSavedAnswers();
         toast.success(t('assessments:submitted_success'));
@@ -588,8 +671,7 @@ export default function StudentAssessments() {
       } catch (netErr) {
         if (netErr.name === 'TypeError' || netErr.status === 0) {
           await queueSubmission(activeAssessment.assessment_id, { answers: payload, token });
-          toast('Offline — will retry automatically.', { icon: '📶' });
-          clearSavedAnswers();
+          toast('Offline — will retry automatically. Your local backup is retained.', { icon: '📶' });
           setActiveAssessment(null);
           setQuestions([]);
           setAnswers({});
@@ -627,6 +709,12 @@ export default function StudentAssessments() {
             <h1 className="text-xl font-bold text-school">{activeAssessment.title}</h1>
             <p className="text-sm text-gray-500">
               <i className="fas fa-shield-alt mr-1"></i> {t('assessments:secure_mode')}
+            </p>
+            <p className={`text-xs mt-1 font-semibold ${saveStatus === 'saved' ? 'text-green-700' : saveStatus === 'offline' ? 'text-orange-700' : 'text-gray-500'}`} aria-live="polite">
+              {saveStatus === 'saving' && 'Saving answers to cloud…'}
+              {saveStatus === 'saved' && '✓ Answers saved to TiDB Cloud'}
+              {saveStatus === 'offline' && 'Offline: local backup kept; cloud save pending'}
+              {saveStatus === 'idle' && 'Answer backup is ready'}
             </p>
           </div>
           <div role="timer" aria-live={urgent ? 'assertive' : 'off'} aria-label={t('assessments:time_remaining')} className={`flex items-center gap-3 rounded-lg px-6 py-2 font-bold ${urgent ? 'bg-red-100 text-red-700 border-2 border-red-400 animate-pulse' : warn ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-400' : 'bg-green-100 text-green-800 border-2 border-green-400'}`}>
