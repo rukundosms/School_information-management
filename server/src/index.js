@@ -11,6 +11,51 @@ const cors = require('cors');
 const http = require('http');
 const path = require('path');
 
+const pool = require('./db');
+
+// ============================================================
+// DATABASE MIGRATION
+// ============================================================
+async function runDatabaseMigrations() {
+  console.log('Checking assessment database columns...');
+
+  const requiredColumns = [
+    {
+      name: 'submit_reason',
+      definition: 'VARCHAR(60) NULL'
+    },
+    {
+      name: 'submitted_at',
+      definition: 'DATETIME NULL'
+    }
+  ];
+
+  for (const column of requiredColumns) {
+    const [columns] = await pool.query(
+      `SELECT COLUMN_NAME
+       FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME = 'assessment_answer_drafts'
+         AND COLUMN_NAME = ?`,
+      [column.name]
+    );
+
+    if (columns.length === 0) {
+      console.log(`Adding missing column: ${column.name}`);
+
+      await pool.query(
+        `ALTER TABLE assessment_answer_drafts
+         ADD COLUMN ${column.name} ${column.definition}`
+      );
+
+      console.log(`Successfully added ${column.name}.`);
+    } else {
+      console.log(`Column already exists: ${column.name}`);
+    }
+  }
+
+  console.log('Assessment database migration completed.');
+}
 // Optional production deps — graceful fallback
 let pino = null, pinoHttp = null, Sentry = null;
 try { pino = require('pino'); pinoHttp = require('pino-http'); } catch {}
@@ -210,20 +255,33 @@ try {
 // ============================================================
 // START
 // ============================================================
-server.listen(PORT, '0.0.0.0', () => {
-  console.log('');
-  console.log('═'.repeat(60));
-  console.log(`✅ School API + Socket.IO listening on http://localhost:${PORT}`);
-  console.log(`   Bind:        0.0.0.0:${PORT} (all interfaces)`);
-  console.log(`   Env:         ${NODE_ENV}`);
-  console.log(`   JWT_SECRET:  ${process.env.JWT_SECRET ? '✅ set' : '❌ missing'}`);
-  console.log(`   Signaling:   ${io.emitClassStarted ? '✅ active' : '⚠️  fallback'}`);
-  console.log(`   Sentry:      ${Sentry && process.env.SENTRY_DSN ? '✅ enabled' : '— off'}`);
-  console.log(`   Health:      http://localhost:${PORT}/api/health`);
-  console.log('═'.repeat(60));
-  console.log('');
-});
+// ============================================================
+// START SERVER AFTER DATABASE MIGRATIONS
+// ============================================================
+async function startServer() {
+  try {
+    await runDatabaseMigrations();
 
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log('');
+      console.log('═'.repeat(60));
+      console.log(`✅ School API + Socket.IO listening on http://localhost:${PORT}`);
+      console.log(`   Bind:        0.0.0.0:${PORT} (all interfaces)`);
+      console.log(`   Env:         ${NODE_ENV}`);
+      console.log(`   JWT_SECRET:  ${process.env.JWT_SECRET ? '✅ set' : '❌ missing'}`);
+      console.log(`   Signaling:   ${io.emitClassStarted ? '✅ active' : '⚠️  fallback'}`);
+      console.log(`   Sentry:      ${Sentry && process.env.SENTRY_DSN ? '✅ enabled' : '— off'}`);
+      console.log(`   Health:      http://localhost:${PORT}/api/health`);
+      console.log('═'.repeat(60));
+      console.log('');
+    });
+  } catch (error) {
+    console.error('❌ Database migration failed:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 // ============================================================
 // GRACEFUL SHUTDOWN
 // ============================================================
