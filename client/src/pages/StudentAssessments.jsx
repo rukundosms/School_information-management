@@ -23,6 +23,38 @@ function getNormalizedType(rawType) {
 }
 
 // ==========================================
+// ANTI-CHEAT CONFIG (tune per deployment)
+// ==========================================
+const AC = {
+  // If true, the FIRST tab-switch auto-submits (old behavior).
+  // If false, first tab-switch within grace window is allowed (incident recorded);
+  // staying hidden past the grace window still submits.
+  SUBMIT_ON_FIRST_TAB_SWITCH: false,
+  TAB_SWITCH_GRACE_MS: 800,       // ignore sub-second alt-tabs
+  BLUR_GRACE_MS: 3000,            // matches old behavior
+  BLUR_SUBMIT_AFTER_WARNINGS: 1,  // submit when warnings > this
+  BLOCK_PASTE: true,              // also block paste into answers
+  FLUSH_DEBOUNCE_MS: 400,
+  MAX_QUEUE: 500,
+};
+
+// ==========================================
+// INCIDENT HELPERS (offline-safe, idempotent)
+// ==========================================
+function makeIncident(type, severity, detail) {
+  const id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+  return {
+    client_uuid: id,
+    incident_type: type,
+    severity,
+    detail: detail ? String(detail).slice(0, 480) : null,
+    client_ts: new Date().toISOString(),
+  };
+}
+
+// ==========================================
 // INLINE FILL-IN-THE-BLANK COMPONENT
 // ==========================================
 function InlineFillBlank({ text, value, onChange, disabled }) {
@@ -127,6 +159,13 @@ export default function StudentAssessments() {
   const questionHeadingRef = useRef(null);
   const startedAtRef = useRef(null);
   const saveQueueRef = useRef(Promise.resolve());
+  const requestingRef = useRef(null);
+
+  // ---- Incident tracking ----
+  const [incidents, setIncidents] = useState([]);
+  const incidentsRef = useRef([]);           // mirror for unload beacon & submit
+  const incidentQueueRef = useRef([]);       // pending retry queue (offline)
+  const incidentFlushTimerRef = useRef(null);
 
   // ---- Approval flow ----
   const [requestingAssessment, setRequestingAssessment] = useState(null);
@@ -155,6 +194,7 @@ export default function StudentAssessments() {
   useEffect(() => () => {
     if (requestPollRef.current) clearInterval(requestPollRef.current);
     if (socketRef.current) socketRef.current.disconnect();
+    if (incidentFlushTimerRef.current) clearTimeout(incidentFlushTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -182,9 +222,67 @@ export default function StudentAssessments() {
   };
 
   // ==========================================
+  // INCIDENT FLUSH (offline-safe + idempotent)
+  // ==========================================
+  const flushIncidents = useCallback((assessmentId, batch, { beacon = false } = {}) => {
+    if (!assessmentId || !batch || batch.length === 0) return;
+    const url = `/api/student/assessments/${assessmentId}/incident`;
+    const body = JSON.stringify({ incidents: batch });
+
+    if (beacon) {
+      // keepalive fetch: works during page unload and can carry auth headers.
+      try {
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Approval-Token': approvedToken || '',
+          },
+          body,
+          keepalive: true,
+          credentials: 'include',
+        }).catch(() => {});
+      } catch { /* best effort */ }
+      return;
+    }
+
+    apiFetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Approval-Token': approvedToken || '',
+      },
+      body,
+    }).catch(() => {
+      // Re-queue on failure (offline). Keep bounded.
+      incidentQueueRef.current.push(...batch);
+      if (incidentQueueRef.current.length > AC.MAX_QUEUE) {
+        incidentQueueRef.current = incidentQueueRef.current.slice(-AC.MAX_QUEUE);
+      }
+    });
+  }, [approvedToken]);
+
+  const recordIncident = useCallback((type, severity, detail) => {
+    if (!activeAssessment || submittedRef.current) return;
+    const inc = makeIncident(type, severity, detail);
+    incidentsRef.current.push(inc);
+    setIncidents((prev) => [...prev, inc]);
+
+    // Debounced flush — batches bursts (e.g. paste + copy) into one request.
+    if (incidentFlushTimerRef.current) clearTimeout(incidentFlushTimerRef.current);
+    incidentFlushTimerRef.current = setTimeout(() => {
+      incidentFlushTimerRef.current = null;
+      const pending = incidentsRef.current.splice(0);
+      const queued = incidentQueueRef.current.splice(0);
+      const all = [...queued, ...pending];
+      if (all.length) flushIncidents(activeAssessment.assessment_id, all);
+    }, AC.FLUSH_DEBOUNCE_MS);
+  }, [activeAssessment, flushIncidents]);
+
+  // ==========================================
   // REQUEST START (WebSocket + Poll)
   // ==========================================
- const requestStart = async (assessment) => {
+  const requestStart = async (assessment) => {
     if (requestingRef.current === assessment.assessment_id) return;
 
     requestingRef.current = assessment.assessment_id;
@@ -327,6 +425,9 @@ export default function StudentAssessments() {
     setLoadingQuiz(true);
     setQuizError('');
     setWarnings(0);
+    setIncidents([]);
+    incidentsRef.current = [];
+    incidentQueueRef.current = [];
     setTimeLeft(null);
     submittedRef.current = false;
     setCurrentQuestionIndex(0);
@@ -463,10 +564,30 @@ export default function StudentAssessments() {
   // When connectivity returns, push the latest local answers to TiDB.
   useEffect(() => {
     if (!activeAssessment) return;
-    const onOnline = () => saveDraft(activeAssessment, answersRef.current);
+    const onOnline = () => {
+      saveDraft(activeAssessment, answersRef.current);
+      // Also retry any queued incidents
+      if (incidentQueueRef.current.length) {
+        const batch = incidentQueueRef.current.splice(0);
+        flushIncidents(activeAssessment.assessment_id, batch);
+      }
+    };
     window.addEventListener('online', onOnline);
     return () => window.removeEventListener('online', onOnline);
-  }, [activeAssessment, saveDraft]);
+  }, [activeAssessment, saveDraft, flushIncidents]);
+
+  // ==========================================
+  // DRAIN INCIDENTS (used by submit paths)
+  // ==========================================
+  const drainIncidents = useCallback(() => {
+    if (incidentFlushTimerRef.current) {
+      clearTimeout(incidentFlushTimerRef.current);
+      incidentFlushTimerRef.current = null;
+    }
+    const pending = incidentsRef.current.splice(0);
+    const queued = incidentQueueRef.current.splice(0);
+    return [...queued, ...pending];
+  }, []);
 
   // ==========================================
   // FORCE SUBMIT
@@ -489,11 +610,21 @@ export default function StudentAssessments() {
         const token = approvedToken;
         await saveDraft(activeAssessment, latest, reasonKey);
 
+        // Flush + include incidents
+        const allIncidents = drainIncidents();
+        if (allIncidents.length) {
+          flushIncidents(activeAssessment.assessment_id, allIncidents);
+        }
+
         try {
           await apiFetch(`/api/student/assessments/${activeAssessment.assessment_id}/submit`, {
             method: 'POST',
             headers: { 'X-Approval-Token': token },
-            body: JSON.stringify({ answers: payload, submit_reason: reasonKey }),
+            body: JSON.stringify({
+              answers: payload,
+              submit_reason: reasonKey,
+              incidents: allIncidents,
+            }),
           });
           clearSavedAnswers();
           setApprovedToken(null);
@@ -503,14 +634,20 @@ export default function StudentAssessments() {
           setActiveAssessment(null);
           setQuestions([]);
           setAnswers({});
+          setIncidents([]);
           loadAssessments();
         } catch (netErr) {
           if (netErr.name === 'TypeError' || netErr.status === 0) {
-            await queueSubmission(activeAssessment.assessment_id, { answers: payload, token });
+            await queueSubmission(activeAssessment.assessment_id, {
+              answers: payload,
+              token,
+              incidents: allIncidents,
+            });
             toast('Offline — your submission will be retried automatically. Your local backup is retained.', { icon: '📶', duration: 6000 });
             setActiveAssessment(null);
             setQuestions([]);
             setAnswers({});
+            setIncidents([]);
             loadAssessments();
           } else {
             throw netErr;
@@ -523,7 +660,7 @@ export default function StudentAssessments() {
         setSubmitting(false);
       }
     },
-    [activeAssessment, questions, submitting, t, approvedToken, saveDraft]
+    [activeAssessment, questions, submitting, t, approvedToken, saveDraft, drainIncidents, flushIncidents]
   );
 
   // ==========================================
@@ -550,27 +687,47 @@ export default function StudentAssessments() {
   }, [activeAssessment, forceSubmit]);
 
   // ==========================================
-  // ANTI-CHEAT
+  // ANTI-CHEAT (records incidents + enforces)
   // ==========================================
   useEffect(() => {
     if (!activeAssessment) return;
 
+    const assessmentId = activeAssessment.assessment_id;
+    let blurTimer = null;
+    let tabGraceTimer = null;
+
+    // -------- TAB VISIBILITY --------
     const onVis = () => {
-      if (document.hidden && !submittedRef.current && !isConfirmingRef.current) {
-        forceSubmit('tab_switch');
+      if (submittedRef.current || isConfirmingRef.current) return;
+      if (document.hidden) {
+        recordIncident('tab_hidden', 3, 'visibilitychange:hidden');
+        if (AC.SUBMIT_ON_FIRST_TAB_SWITCH) {
+          forceSubmit('tab_switch');
+          return;
+        }
+        // Grace window — ignore ultra-fast alt-tabs that come right back.
+        tabGraceTimer = setTimeout(() => {
+          tabGraceTimer = null;
+          if (document.hidden && !submittedRef.current && !isConfirmingRef.current) {
+            forceSubmit('tab_switch');
+          }
+        }, AC.TAB_SWITCH_GRACE_MS);
+      } else {
+        if (tabGraceTimer) { clearTimeout(tabGraceTimer); tabGraceTimer = null; }
       }
     };
 
-    let blurTimer = null;
+    // -------- WINDOW BLUR / FOCUS --------
     const onBlur = () => {
       if (submittedRef.current || isConfirmingRef.current) return;
       if (blurTimer) return;
       blurTimer = setTimeout(() => {
         blurTimer = null;
         if (!document.hasFocus() && !submittedRef.current && !isConfirmingRef.current) {
+          recordIncident('window_blur', 2, `blur>${AC.BLUR_GRACE_MS}ms`);
           setWarnings((prev) => {
             const n = prev + 1;
-            if (n === 1) {
+            if (n <= AC.BLUR_SUBMIT_AFTER_WARNINGS) {
               toast(t('assessments:warning_leave_once'), { icon: '⚠️', duration: 6000 });
             } else {
               forceSubmit('multiple_leave');
@@ -578,39 +735,102 @@ export default function StudentAssessments() {
             return n;
           });
         }
-      }, 3000);
+      }, AC.BLUR_GRACE_MS);
     };
 
     const onFocus = () => {
-      if (blurTimer) {
-        clearTimeout(blurTimer);
-        blurTimer = null;
-      }
+      if (blurTimer) { clearTimeout(blurTimer); blurTimer = null; }
     };
 
+    // -------- FULLSCREEN EXIT --------
     const onFs = () => {
       if (!document.fullscreenElement && !submittedRef.current && !isConfirmingRef.current) {
+        recordIncident('fullscreen_exit', 3, 'fullscreenchange');
         forceSubmit('fullscreen_exit');
       }
     };
 
-    const prevent = (e) => e.preventDefault();
+    // -------- CONTEXT MENU --------
+    const onContext = (e) => {
+      e.preventDefault();
+      recordIncident('context_menu', 1, e.target?.tagName || null);
+    };
+
+    // -------- COPY / PASTE / CUT --------
+    const onCopy = (e) => {
+      recordIncident('copy', 2, e.target?.tagName || '');
+      // Prevent exfiltration of exam text
+      e.preventDefault();
+    };
+    const onCut = (e) => {
+      recordIncident('cut', 2, e.target?.tagName || '');
+      e.preventDefault();
+    };
+    const onPaste = (e) => {
+      recordIncident('paste', 2, e.target?.tagName || '');
+      if (AC.BLOCK_PASTE) e.preventDefault();
+    };
+
+    // -------- KEYBOARD SHORTCUTS --------
+    const onKeyDown = (e) => {
+      const k = e.key?.toLowerCase();
+      // DevTools / view-source / print / save
+      if (
+        e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(k)) ||
+        ((e.ctrlKey || e.metaKey) && ['u', 'p', 's'].includes(k))
+      ) {
+        e.preventDefault();
+        recordIncident('shortcut', 3, `key:${e.key}${e.shiftKey ? '+shift' : ''}`);
+        return;
+      }
+      // Copy/paste/cut (some browsers do not fire DOM events in inputs for ctrl shortcuts)
+      if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x'].includes(k)) {
+        recordIncident('shortcut', 2, `key:ctrl+${k}`);
+      }
+      if ((e.ctrlKey || e.metaKey) && k === 'a') {
+        recordIncident('shortcut', 1, 'key:ctrl+a');
+      }
+    };
+
+    // -------- UNLOAD — flush incidents via keepalive --------
+    const onBeforeUnload = () => {
+      const all = drainIncidents();
+      if (all.length) {
+        try { flushIncidents(assessmentId, all, { beacon: true }); } catch { /* noop */ }
+      }
+    };
 
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('blur', onBlur);
     window.addEventListener('focus', onFocus);
     document.addEventListener('fullscreenchange', onFs);
-    document.addEventListener('contextmenu', prevent);
+    document.addEventListener('contextmenu', onContext);
+    document.addEventListener('copy', onCopy);
+    document.addEventListener('cut', onCut);
+    document.addEventListener('paste', onPaste);
+    window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('beforeunload', onBeforeUnload);
 
     return () => {
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('blur', onBlur);
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('fullscreenchange', onFs);
-      document.removeEventListener('contextmenu', prevent);
+      document.removeEventListener('contextmenu', onContext);
+      document.removeEventListener('copy', onCopy);
+      document.removeEventListener('cut', onCut);
+      document.removeEventListener('paste', onPaste);
+      window.removeEventListener('keydown', onKeyDown, true);
+      window.removeEventListener('beforeunload', onBeforeUnload);
       if (blurTimer) clearTimeout(blurTimer);
+      if (tabGraceTimer) clearTimeout(tabGraceTimer);
+      if (incidentFlushTimerRef.current) {
+        clearTimeout(incidentFlushTimerRef.current);
+        incidentFlushTimerRef.current = null;
+      }
     };
-  }, [activeAssessment, forceSubmit, t]);
+  }, [activeAssessment, forceSubmit, t, recordIncident, flushIncidents, drainIncidents]);
 
   // ==========================================
   // HEARTBEAT
@@ -623,11 +843,11 @@ export default function StudentAssessments() {
         : 0;
       apiFetch(`/api/student/assessments/${activeAssessment.assessment_id}/heartbeat`, {
         method: 'POST',
-        body: JSON.stringify({ warnings, elapsed }),
+        body: JSON.stringify({ warnings, elapsed, incident_count: incidents.length }),
       }).catch(() => {});
     }, 15000);
     return () => clearInterval(id);
-  }, [activeAssessment, warnings]);
+  }, [activeAssessment, warnings, incidents.length]);
 
   // ==========================================
   // NORMAL SUBMIT
@@ -652,11 +872,20 @@ export default function StudentAssessments() {
       const token = approvedToken;
       await saveDraft(activeAssessment, latest, 'manual');
 
+      const allIncidents = drainIncidents();
+      if (allIncidents.length) {
+        flushIncidents(activeAssessment.assessment_id, allIncidents);
+      }
+
       try {
         await apiFetch(`/api/student/assessments/${activeAssessment.assessment_id}/submit`, {
           method: 'POST',
           headers: { 'X-Approval-Token': token },
-          body: JSON.stringify({ answers: payload, submit_reason: 'manual' }),
+          body: JSON.stringify({
+            answers: payload,
+            submit_reason: 'manual',
+            incidents: allIncidents,
+          }),
         });
         clearSavedAnswers();
         toast.success(t('assessments:submitted_success'));
@@ -667,14 +896,20 @@ export default function StudentAssessments() {
         setActiveAssessment(null);
         setQuestions([]);
         setAnswers({});
+        setIncidents([]);
         loadAssessments();
       } catch (netErr) {
         if (netErr.name === 'TypeError' || netErr.status === 0) {
-          await queueSubmission(activeAssessment.assessment_id, { answers: payload, token });
+          await queueSubmission(activeAssessment.assessment_id, {
+            answers: payload,
+            token,
+            incidents: allIncidents,
+          });
           toast('Offline — will retry automatically. Your local backup is retained.', { icon: '📶' });
           setActiveAssessment(null);
           setQuestions([]);
           setAnswers({});
+          setIncidents([]);
           loadAssessments();
         } else {
           throw netErr;
